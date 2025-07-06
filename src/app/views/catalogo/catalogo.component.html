@@ -1,0 +1,53 @@
+<div class="mb-4 grid grid-cols-1 gap-6 xl:grid-cols-3">
+    <div
+        class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md overflow-hidden xl:col-span-2">
+        <div class="p-6 overflow-x-scroll px-0 pt-0 pb-2">
+            <!-- Lista de productos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div *ngFor="let producto of productos"
+                    class="relative flex w-full max-w-[26rem] flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-lg">
+                    <div
+                        class="relative mx-4 mt-4 overflow-hidden text-white shadow-lg rounded-xl bg-blue-gray-500 bg-clip-border shadow-blue-gray-500/40">
+                        <img [src]="producto.imagen" alt="Producto" class="w-full h-48 object-cover" />
+                        <div
+                            class="absolute inset-0 w-full h-full bg-gradient-to-tr from-transparent via-transparent to-black/60">
+                        </div>
+                    </div>
+
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <p class="text-xl font-bold text-blue-gray-900">{{ producto.nombre }}</p>
+                            <button (click)="agregarProducto(producto)">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                    width="24px" fill="#000000">
+                                    <path
+                                        d="M440-600v-120H320v-80h120v-120h80v120h120v80H520v120h-80ZM280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM40-800v-80h131l170 360h280l156-280h91L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68.5-39t-1.5-79l54-98-144-304H40Z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <h3 class="text-base font-medium text-blue-gray-900">Bs. {{ producto.precio }}</h3>
+                        <h4 class="text-base font-sans text-gray-900">{{ producto.descripcion }}</h4>
+                        <p class="text-base font-light text-gray-700">
+                            Categoría: {{ producto.categoria?.nombre || 'Sin categoría' }}
+                        </p>
+
+                        <p class="text-base font-sans text-gray-900">Género:</p>
+                        <p class="text-base font-light text-gray-700">
+                            {{ producto.genero?.nombre || 'Sin género' }}
+                        </p>
+
+                        <p class="text-base font-sans text-gray-900">Autor:</p>
+                        <p class="text-base font-light text-gray-700">
+                            {{ producto.autor?.nombre || 'Sin autor' }}
+                        </p>
+
+                        <p class="text-base font-sans text-gray-900">Editorial:</p>
+                        <p class="text-base font-light text-gray-700">
+                            {{ producto.editorial?.nombre || 'Sin editorial' }}
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
