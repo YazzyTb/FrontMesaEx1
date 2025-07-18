@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { NgIf } from '@angular/common';
 import { Router } from '@angular/router';
@@ -10,47 +10,35 @@ import { Router } from '@angular/router';
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
   mostrarSesion = false;
   username: string | null = null;
-  user: string | null = null;
 
-  constructor(private authService: AuthService, private router: Router) {
-    if (typeof window !== 'undefined') {
-      this.user = window.sessionStorage.getItem('user');
-      if (this.user) {
-        try {
-          const userObj = JSON.parse(this.user);
-          this.username = userObj.username;
-          if (this.username?.includes('@')) {
-            this.username = this.username.split('@')[0];
-          }
-        } catch (e) {
-          console.error("Error al parsear el usuario:", e);
-        }
-      }
-    }
+  constructor(private authService: AuthService, private router: Router) {}
+
+  ngOnInit(): void {
+    this.obtenerUsuario();
   }
 
   obtenerUsuario() {
-    if (typeof window !== 'undefined') {
-      const user = window.sessionStorage.getItem('user');
-      if (user) {
-        try {
-          const userObj = JSON.parse(user);
-          this.username = userObj.username;
-          if (this.username && this.username.includes('@')) {
-            this.username = this.username.split('@')[0];
-          }
-        } catch (error) {
-          console.error("Error al parsear el usuario: ", error);
+    const user = sessionStorage.getItem('user');
+    if (user) {
+      try {
+        const userObj = JSON.parse(user);
+        this.username =
+          userObj.username || userObj.email || userObj.nombre_completo || userObj.name || userObj.user;
+
+        if (this.username && this.username.includes('@')) {
+          this.username = this.username.split('@')[0];
         }
+      } catch (error) {
+        console.error('Error al parsear el usuario: ', error);
       }
     }
   }
 
   irPerfil(): void {
-    console.log('Ir al perfil');
+    this.router.navigate(['/perfil']);
   }
 
   irAlCarrito(): void {
@@ -59,6 +47,11 @@ export class HeaderComponent {
 
   cerrarSesion() {
     this.authService.logout();
+  }
+
+  toggleSesion() {
+    this.mostrarSesion = !this.mostrarSesion;
+    if (this.mostrarSesion) this.obtenerUsuario();
   }
 
   @HostListener('document:click', ['$event'])

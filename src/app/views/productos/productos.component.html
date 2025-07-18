@@ -1,350 +1,253 @@
+<!-- Contenedor principal -->
 <div class="mb-4 grid grid-cols-1 gap-6 xl:grid-cols-3">
-    <div
-        class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md overflow-hidden xl:col-span-2">
-        <div
-            class="relative bg-clip-border rounded-xl overflow-hidden bg-transparent text-gray-700 shadow-none m-0 flex items-center justify-between p-6">
-            <div>
-                <h2
-                    class="block antialiased tracking-normal font-sans text-base font-bold leading-relaxed text-blue-gray-900 mb-1">
-                    Productos</h2>
-            </div>
-        </div>
-        <div class="p-6 overflow-x-scroll px-0 pt-0 pb-2">
-
-            <table class="w-full min-w-[640px] table-auto">
-                <thead>
-                    <tr>
-                        <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
-                            <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">
-                                ID</p>
-                        </th>
-                        <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
-                            <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">
-                                Nombre del Producto</p>
-                        </th>
-                        <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
-                            <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">
-                                Descripcion del Producto</p>
-                        </th>
-                        <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
-                            <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">
-                                Precio del Producto</p>
-                        </th>
-                        <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
-                            <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">
-                                Stock del Producto</p>
-                        </th>
-
-                        <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
-                            <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">
-                                Categoría</p>
-                        </th>
-                        <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
-                            <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">
-                                Género</p>
-                        </th>
-                        <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
-                            <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">
-                                Autor</p>
-                        </th>
-                        <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
-                            <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">
-                                Editorial</p>
-                        </th>
-                        <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
-                            <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">
-                                Foto del Producto</p>
-                        </th>
-                        <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
-                            <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">
-                                Acción</p>
-                        </th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <tr *ngFor="let producto of productos">
-                        <td class="py-3 px-5 border-b border-blue-gray-50">
-                            <p class="block antialiased font-sans text-xs font-medium text-blue-gray-600">{{ producto.id
-                                }}
-                            </p>
-                        </td>
-                        <td class="py-3 px-5 border-b border-blue-gray-50">
-                            <p class="block antialiased font-sans text-xs font-medium text-blue-gray-600">{{
-                                producto.nombre }}</p>
-                        </td>
-                        <td class="py-3 px-5 border-b border-blue-gray-50">
-                            <p class="block antialiased font-sans text-xs font-medium text-blue-gray-600">{{
-                                producto.descripcion }}</p>
-                        </td>
-                        <td class="py-3 px-5 border-b border-blue-gray-50">
-                            <p class="block antialiased font-sans text-xs font-medium text-blue-gray-600">{{
-                                producto.precio }}</p>
-                        </td>
-                        <td class="py-3 px-5 border-b border-blue-gray-50">
-                            <p class="block antialiased font-sans text-xs font-medium text-blue-gray-600">{{
-                                producto.stock }}</p>
-                        </td>
-
-                        <td class="py-3 px-5 border-b border-blue-gray-50">
-                            <p class="block antialiased font-sans text-xs font-medium text-blue-gray-600">{{
-                                producto.categoria.nombre || 'Sin categoria' }}</p>
-                        </td>
-                        <td class="py-3 px-5 border-b border-blue-gray-50">
-                            <p class="block antialiased font-sans text-xs font-medium text-blue-gray-600">
-                                {{ producto.genero?.nombre || 'Sin género' }}
-                            </p>
-                        </td>
-                        <td class="py-3 px-5 border-b border-blue-gray-50">
-                            <p class="block antialiased font-sans text-xs font-medium text-blue-gray-600">
-                                {{ producto.autor?.nombre || 'Sin autor' }}
-                            </p>
-                        </td>
-                        <td class="py-3 px-5 border-b border-blue-gray-50">
-                            <p class="block antialiased font-sans text-xs font-medium text-blue-gray-600">
-                                {{ producto.editorial?.nombre || 'Sin editorial' }}
-                            </p>
-                        </td>
-
-
-                        <td class="py-3 px-5 border-b border-blue-gray-50">
-                            <img *ngIf="producto.imagen" [src]="producto.imagen" alt="Producto"
-                                class="h-12 w-12 object-cover rounded" />
-                        <td class="py-3 px-5 border-b border-blue-gray-50">
-                            <svg (click)="openModalToUpdateproducto(producto)" xmlns="http://www.w3.org/2000/svg"
-                                height="24px" viewBox="0 -960 960 960" width="24px" fill="#008080">
-                                <path
-                                    d="M560-120v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q8 9 12.5 20t4.5 22q0 11-4 22.5T903-340L683-120H560Zm-400-40v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q37 0 73 4.5t72 14.5L480-276v116H160Zm663-184 37-39-37-37-38 38 38 38ZM480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Z" />
-                            </svg>
-                            <svg (click)="deleteProducto(producto)" xmlns="http://www.w3.org/2000/svg" height="24px"
-                                viewBox="0 -960 960 960" width="24px" fill="#dc4340">
-                                <path
-                                    d="m696-440-56-56 83-84-83-83 56-57 84 84 83-84 57 57-84 83 84 84-57 56-83-83-84 83Zm-336-40q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Z" />
-                            </svg>
-                        </td>
-                    </tr>
-                </tbody>
-
-            </table>
-            <!-- BOTON PARA REGISTRAR UN NUEVO PRODUCTO -->
-            <div class="p-6 pt-3">
-                <button (click)="activeRegisterForm()" type="button"
-                    class="appearance-none block bg-blue-700 text-gray-100 font-bold border border-gray-200 rounded-lg py-3 px-3 leading-tight hover:bg-blue-600 focus:outline-none focus:bg-white focus:border-gray-500">Agregar
-                    Nuevo Producto</button>
-            </div>
-        </div>
+  <div class="relative flex flex-col bg-white text-gray-700 shadow-md rounded-xl overflow-hidden xl:col-span-3">
+    <!-- Encabezado -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-300">
+      <h2 class="text-lg font-bold text-[#0F172A]">Productos</h2>
+      <button (click)="activeRegisterForm()" class="bg-[#0F172A] text-white px-4 py-2 rounded hover:bg-[#1E293B] transition-all">Agregar Nuevo Producto</button>
     </div>
 
-    <!-- MODAL PARA REGISTRAR -->
-    <div *ngIf="isModalRegisterProductoOpen"
-        class="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50 max-h-[90vh] overflow-y-auto">
-        <div class="bg-white rounded-lg shadow-lg w-11/12 sm:w-96 h-full p-6 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-blue-gray-900">Registrar Producto</h2>
-                <button (click)="closeRegisterProductoModal()" id="closeModalBtn"
-                    class="text-gray-600 text-2xl font-semibold hover:text-gray-900">&times;</button>
-            </div>
-            <form (submit)="createProducto()" class="space-y-4">
-
-                <div>
-                    <label for="producto" class="block text-sm font-medium text-gray-700">Nombre del
-                        Producto</label>
-                    <input type="text" id="producto" [(ngModel)]="nombre" name="producto"
-                        class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                        required />
-                </div>
-
-                <div>
-                    <label for="descripcion" class="block text-sm font-medium text-gray-700">Descripción del
-                        Producto</label>
-                    <input type="text" id="descripcion" [(ngModel)]="descripcion" name="descripcion"
-                        class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                        required />
-                </div>
-
-                <div>
-                    <label for="imagen" class="block text-sm font-medium text-gray-700">Imagen del Producto</label>
-                    <ngx-dropzone (change)="onSelect($event)">
-                        <ngx-dropzone-label>Arrastra la imagen aqui</ngx-dropzone-label>
-                        <ngx-dropzone-preview *ngFor="let f of files" [removable]="true" (removed)="onRemove(f)">
-                            <ngx-dropzone-label>{{ f.name }} ({{ f.type }})</ngx-dropzone-label>
-                        </ngx-dropzone-preview>
-                    </ngx-dropzone>
-                </div>
-
-                <div>
-                    <label for="precio" class="block text-sm font-medium text-gray-700">Precio del Producto</label>
-                    <input type="text" id="precio" [(ngModel)]="precio" name="precio"
-                        class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                        required />
-                </div>
-
-                <div>
-                    <label for="stock" class="block text-sm font-medium text-gray-700">Stock del Producto</label>
-                    <input type="number" id="stock" [(ngModel)]="stock" name="stock"
-                        class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                        required />
-                </div>
-
-                <div>
-                    <label for="categoria" class="block text-sm font-medium text-gray-700">Categoria</label>
-                    <select id="categoria" [(ngModel)]="selectedSubcategoria" name="categoria"
-                        class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                        required>
-                        <option value="" disabled selected>Seleccione una Categoría</option>
-                        <option *ngFor="let subcategoria of subcategorias" [value]="subcategoria.id">{{
-                            subcategoria.nombre }}</option>
-                    </select>
-                </div>
-                <div *ngIf="selectedSubcategoria != 1">
-                    <div>
-                        <label for="genero" class="block text-sm font-medium text-gray-700">Género</label>
-                        <select id="genero" [(ngModel)]="selectedGenero" name="genero"
-                            class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                            required>
-                            <option value="" disabled selected>Seleccione un Género</option>
-                            <option *ngFor="let genero of generos" [value]="genero.id">{{ genero.nombre }}</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="autor" class="block text-sm font-medium text-gray-700">Autor</label>
-                        <select id="autor" [(ngModel)]="selectedAutor" name="autor"
-                            class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                            required>
-                            <option value="" disabled selected>Seleccione un Autor</option>
-                            <option *ngFor="let autor of autores" [value]="autor.id">{{ autor.nombre }}</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="editorial" class="block text-sm font-medium text-gray-700">Editorial</label>
-                        <select id="editorial" [(ngModel)]="selectedEditorial" name="editorial"
-                            class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                            required>
-                            <option value="" disabled selected>Seleccione una Editorial</option>
-                            <option *ngFor="let editorial of editoriales" [value]="editorial.id">{{ editorial.nombre
-                                }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
-                <div class="flex justify-between mt-6">
-                    <button (click)="closeRegisterProductoModal()" type="button" id="closeModalBtn"
-                        class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 focus:outline-none">Cancelar</button>
-                    <button type="submit"
-                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 focus:outline-none">Registrar</button>
-                </div>
-            </form>
-            <!-- </div> -->
-        </div>
+    <!-- Tabla -->
+    <div class="p-6 overflow-x-auto">
+      <table class="w-full min-w-[640px] table-auto">
+        <thead class="bg-[#0F172A] text-white">
+          <tr>
+            <th class="py-3 px-6 text-left text-xs font-medium uppercase">ID</th>
+            <th class="py-3 px-6 text-left text-xs font-medium uppercase">Nombre</th>
+            <th class="py-3 px-6 text-left text-xs font-medium uppercase">Descripción</th>
+            <th class="py-3 px-6 text-left text-xs font-medium uppercase">Precio</th>
+            <th class="py-3 px-6 text-left text-xs font-medium uppercase">Stock</th>
+            <th class="py-3 px-6 text-left text-xs font-medium uppercase">Categoría</th>
+            <th class="py-3 px-6 text-left text-xs font-medium uppercase">Género</th>
+            <th class="py-3 px-6 text-left text-xs font-medium uppercase">Autor</th>
+            <th class="py-3 px-6 text-left text-xs font-medium uppercase">Editorial</th>
+            <th class="py-3 px-6 text-left text-xs font-medium uppercase">Imagen</th>
+            <th class="py-3 px-6 text-left text-xs font-medium uppercase">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let producto of productos" class="border-b border-gray-200 hover:bg-gray-50">
+            <td class="py-3 px-6 text-sm">{{ producto.id }}</td>
+            <td class="py-3 px-6 text-sm">{{ producto.nombre }}</td>
+            <td class="py-3 px-6 text-sm">{{ producto.descripcion }}</td>
+            <td class="py-3 px-6 text-sm">{{ producto.precio }}</td>
+            <td class="py-3 px-6 text-sm">{{ producto.stock }}</td>
+            <td class="py-3 px-6 text-sm">{{ producto.categoria?.nombre || 'Sin categoría' }}</td>
+            <td class="py-3 px-6 text-sm">{{ producto.genero?.nombre || 'Sin género' }}</td>
+            <td class="py-3 px-6 text-sm">{{ producto.autor?.nombre || 'Sin autor' }}</td>
+            <td class="py-3 px-6 text-sm">{{ producto.editorial?.nombre || 'Sin editorial' }}</td>
+            <td class="py-3 px-6">
+              <img *ngIf="producto.imagen" [src]="producto.imagen" alt="Producto" class="h-12 w-12 object-cover rounded">
+            </td>
+            <td class="py-3 px-6 flex gap-2">
+              <svg (click)="openModalToUpdateproducto(producto)" xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 24 24" fill="#0F766E" class="cursor-pointer">
+                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.9959.9959 0 0 0 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+              </svg>
+              <svg (click)="deleteProducto(producto)" xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 24 24" fill="#DC2626" class="cursor-pointer">
+                <path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1z"/>
+              </svg>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <!-- VENTANA EMERGENTE PARA ACTUALIZAR LOS DATOS -->
-    <div *ngIf="isModalUpdateProductoOpen"
-        class="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50 max-h-[90vh] overflow-y-auto">
-        <div class="bg-white rounded-lg shadow-lg w-11/12 sm:w-96 h-full p-6 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-blue-gray-900">Actualizar Producto</h2>
-                <button (click)="closeUpdateProductoModal()" id="closeModalBtn"
-                    class="text-gray-600 text-2xl font-semibold hover:text-gray-900">&times;</button>
-            </div>
-            <form (submit)="updateproducto()" class="space-y-4">
 
-                <div>
-                    <label for="nombreUpdate" class="block text-sm font-medium text-gray-700">Nombre del
-                        Producto</label>
-                    <input type="text" id="nombreUpdate" [(ngModel)]="nombreUpdate" name="nombreUpdate"
-                        class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                        required />
-                </div>
-
-                <div>
-                    <label for="descripcionUpdate" class="block text-sm font-medium text-gray-700">Descripción del
-                        Producto</label>
-                    <input type="text" id="descripcionUpdate" [(ngModel)]="descripcionUpdate" name="descripcionUpdate"
-                        class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                        required />
-                </div>
-
-                <div>
-                    <label for="imagen" class="block text-sm font-medium text-gray-700">Imagen del Producto</label>
-                    <div class="mb-4">
-                        <img [src]="previewImageUrl ? previewImageUrl : imagenUpdate" alt="Producto"
-                            class="max-w-full max-h-60 rounded mt-2 mx-auto" />
-                    </div>
-                    <ngx-dropzone (change)="onSelect($event)">
-                        <ngx-dropzone-label>Agrega la nueva imagen aqui</ngx-dropzone-label>
-                        <ngx-dropzone-preview *ngFor="let f of files" [removable]="true" (removed)="onRemove(f)">
-                            <ngx-dropzone-label>{{ f.name }} ({{ f.type }})</ngx-dropzone-label>
-                        </ngx-dropzone-preview>
-                    </ngx-dropzone>
-                </div>
-
-                <div>
-                    <label for="precioUpdate" class="block text-sm font-medium text-gray-700">Precio del
-                        Producto</label>
-                    <input type="text" id="precioUpdate" [(ngModel)]="precioUpdate" name="precioUpdate"
-                        class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                        required />
-                </div>
-
-                <div>
-                    <label for="stockUpdate" class="block text-sm font-medium text-gray-700">Stock del
-                        Producto</label>
-                    <input type="number" id="stockUpdate" [(ngModel)]="stockUpdate" name="stockUpdate"
-                        class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                        required />
-                </div>
-
-                <div>
-                    <label for="categoria" class="block text-sm font-medium text-gray-700">Categoria</label>
-                    <select id="updateCategoria" [(ngModel)]="subcategoriaUpdate" name="updateCategoria"
-                        class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                        required>
-                        <option value="" disabled selected>Seleccione una Categoría</option>
-                        <option *ngFor="let subcategoria of subcategorias" [value]="subcategoria.id">{{
-                            subcategoria.nombre }}</option>
-                    </select>
-                </div>
-                <div *ngIf="subcategoriaUpdate != 1">
-                    <div>
-                        <label for="genero" class="block text-sm font-medium text-gray-700">Género</label>
-                        <select id="updateCenero" [(ngModel)]="selectedGenero" name="updateCenero"
-                            class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                            required>
-                            <option value="" disabled selected>Seleccione un Género</option>
-                            <option *ngFor="let genero of generos" [value]="genero.id">{{ genero.nombre }}</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="autor" class="block text-sm font-medium text-gray-700">Autor</label>
-                        <select id="updateAutor" [(ngModel)]="selectedAutor" name="updateAutor"
-                            class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                            required>
-                            <option value="" disabled selected>Seleccione un Autor</option>
-                            <option *ngFor="let autor of autores" [value]="autor.id">{{ autor.nombre }}</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="editorial" class="block text-sm font-medium text-gray-700">Editorial</label>
-                        <select id="updateEditorial" [(ngModel)]="selectedEditorial" name="updateEditorial"
-                            class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                            required>
-                            <option value="" disabled selected>Seleccione una Editorial</option>
-                            <option *ngFor="let editorial of editoriales" [value]="editorial.id">{{ editorial.nombre
-                                }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
-                <div class="flex justify-between mt-6">
-                    <button type="button" (click)="closeUpdateProductoModal()"
-                        class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 focus:outline-none">
-                        Cancelar
-                    </button>
-                    <button type="submit"
-                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 focus:outline-none">
-                        Actualizar
-                    </button>
-                </div>
-            </form>
-        </div>
+    <!-- Paginación -->
+    <div class="flex justify-center items-center gap-2 py-4">
+      <button class="px-3 py-1 bg-[#0F172A] text-white text-sm rounded disabled:opacity-50" (click)="paginaActual = paginaActual - 1" [disabled]="paginaActual <= 1">Anterior</button>
+      <span class="text-sm text-gray-700">Página {{ paginaActual }}</span>
+      <button class="px-3 py-1 bg-[#0F172A] text-white text-sm rounded" (click)="paginaActual = paginaActual + 1" [disabled]="productos.length < itemsPorPagina">Siguiente</button>
     </div>
+  </div>
+</div>
+
+<!-- MODAL REGISTRO DE PRODUCTO -->
+<div *ngIf="isModalRegisterProductoOpen"
+     class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white rounded-xl shadow-lg w-11/12 sm:w-[90%] md:w-[80%] lg:w-[500px] max-h-screen overflow-y-auto p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold text-blue-800">Registrar Producto</h2>
+      <button (click)="closeRegisterProductoModal()" class="text-gray-600 text-2xl font-bold hover:text-gray-900">&times;</button>
+    </div>
+
+    <form (submit)="createProducto()" class="space-y-4">
+
+      <div>
+        <label for="producto" class="block text-sm font-medium text-gray-700">Nombre del Producto</label>
+        <input id="producto" type="text" [(ngModel)]="nombre" name="producto"
+               class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required />
+      </div>
+
+      <div>
+        <label for="descripcion" class="block text-sm font-medium text-gray-700">Descripción</label>
+        <input id="descripcion" type="text" [(ngModel)]="descripcion" name="descripcion"
+               class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required />
+      </div>
+
+      <div>
+        <label for="imagen" class="block text-sm font-medium text-gray-700 mb-1">Imagen del Producto</label>
+        <ngx-dropzone (change)="onSelect($event)">
+          <ngx-dropzone-label>Arrastra la imagen aquí o haz clic</ngx-dropzone-label>
+          <ngx-dropzone-preview *ngFor="let f of files" [removable]="true" (removed)="onRemove(f)">
+            <ngx-dropzone-label>{{ f.name }} ({{ f.type }})</ngx-dropzone-label>
+          </ngx-dropzone-preview>
+        </ngx-dropzone>
+      </div>
+
+      <div>
+        <label for="precio" class="block text-sm font-medium text-gray-700">Precio</label>
+        <input id="precio" type="text" [(ngModel)]="precio" name="precio"
+               class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required />
+      </div>
+
+      <div>
+        <label for="stock" class="block text-sm font-medium text-gray-700">Stock</label>
+        <input id="stock" type="number" [(ngModel)]="stock" name="stock"
+               class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required />
+      </div>
+
+      <div>
+        <label for="categoria" class="block text-sm font-medium text-gray-700">Categoría</label>
+        <select id="categoria" [(ngModel)]="selectedSubcategoria" name="categoria"
+                class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required>
+          <option value="" disabled selected>Seleccione una Categoría</option>
+          <option *ngFor="let subcategoria of subcategorias" [value]="subcategoria.id">{{ subcategoria.nombre }}</option>
+        </select>
+      </div>
+
+      <div *ngIf="selectedSubcategoria != 1">
+        <div>
+          <label for="genero" class="block text-sm font-medium text-gray-700">Género</label>
+          <select id="genero" [(ngModel)]="selectedGenero" name="genero"
+                  class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required>
+            <option value="" disabled selected>Seleccione un Género</option>
+            <option *ngFor="let genero of generos" [value]="genero.id">{{ genero.nombre }}</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="autor" class="block text-sm font-medium text-gray-700">Autor</label>
+          <select id="autor" [(ngModel)]="selectedAutor" name="autor"
+                  class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required>
+            <option value="" disabled selected>Seleccione un Autor</option>
+            <option *ngFor="let autor of autores" [value]="autor.id">{{ autor.nombre }}</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="editorial" class="block text-sm font-medium text-gray-700">Editorial</label>
+          <select id="editorial" [(ngModel)]="selectedEditorial" name="editorial"
+                  class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required>
+            <option value="" disabled selected>Seleccione una Editorial</option>
+            <option *ngFor="let editorial of editoriales" [value]="editorial.id">{{ editorial.nombre }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex justify-between mt-6">
+        <button type="button" (click)="closeRegisterProductoModal()"
+                class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">Cancelar</button>
+        <button type="submit"
+                class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Registrar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- MODAL ACTUALIZAR PRODUCTO -->
+<div *ngIf="isModalUpdateProductoOpen"
+     class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white rounded-xl shadow-lg w-11/12 sm:w-[90%] md:w-[80%] lg:w-[500px] max-h-screen overflow-y-auto p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold text-blue-800">Actualizar Producto</h2>
+      <button (click)="closeUpdateProductoModal()" class="text-gray-600 text-2xl font-bold hover:text-gray-900">&times;</button>
+    </div>
+
+    <form (submit)="updateproducto()" class="space-y-4">
+
+      <div>
+        <label for="nombreUpdate" class="block text-sm font-medium text-gray-700">Nombre del Producto</label>
+        <input id="nombreUpdate" type="text" [(ngModel)]="nombreUpdate" name="nombreUpdate"
+               class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required />
+      </div>
+
+      <div>
+        <label for="descripcionUpdate" class="block text-sm font-medium text-gray-700">Descripción</label>
+        <input id="descripcionUpdate" type="text" [(ngModel)]="descripcionUpdate" name="descripcionUpdate"
+               class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Imagen actual</label>
+        <img [src]="previewImageUrl ? previewImageUrl : imagenUpdate" alt="Producto"
+             class="w-full max-h-60 object-contain rounded mb-2" />
+        <ngx-dropzone (change)="onSelect($event)">
+          <ngx-dropzone-label>Agrega una nueva imagen aquí</ngx-dropzone-label>
+          <ngx-dropzone-preview *ngFor="let f of files" [removable]="true" (removed)="onRemove(f)">
+            <ngx-dropzone-label>{{ f.name }}</ngx-dropzone-label>
+          </ngx-dropzone-preview>
+        </ngx-dropzone>
+      </div>
+
+      <div>
+        <label for="precioUpdate" class="block text-sm font-medium text-gray-700">Precio</label>
+        <input id="precioUpdate" type="text" [(ngModel)]="precioUpdate" name="precioUpdate"
+               class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required />
+      </div>
+
+      <div>
+        <label for="stockUpdate" class="block text-sm font-medium text-gray-700">Stock</label>
+        <input id="stockUpdate" type="number" [(ngModel)]="stockUpdate" name="stockUpdate"
+               class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required />
+      </div>
+
+      <div>
+        <label for="updateCategoria" class="block text-sm font-medium text-gray-700">Categoría</label>
+        <select id="updateCategoria" [(ngModel)]="subcategoriaUpdate" name="updateCategoria"
+                class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required>
+          <option value="" disabled selected>Seleccione una Categoría</option>
+          <option *ngFor="let subcategoria of subcategorias" [value]="subcategoria.id">{{ subcategoria.nombre }}</option>
+        </select>
+      </div>
+
+      <div *ngIf="subcategoriaUpdate != 1">
+        <div>
+          <label for="updateGenero" class="block text-sm font-medium text-gray-700">Género</label>
+          <select id="updateGenero" [(ngModel)]="selectedGenero" name="updateGenero"
+                  class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required>
+            <option value="" disabled selected>Seleccione un Género</option>
+            <option *ngFor="let genero of generos" [value]="genero.id">{{ genero.nombre }}</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="updateAutor" class="block text-sm font-medium text-gray-700">Autor</label>
+          <select id="updateAutor" [(ngModel)]="selectedAutor" name="updateAutor"
+                  class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required>
+            <option value="" disabled selected>Seleccione un Autor</option>
+            <option *ngFor="let autor of autores" [value]="autor.id">{{ autor.nombre }}</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="updateEditorial" class="block text-sm font-medium text-gray-700">Editorial</label>
+          <select id="updateEditorial" [(ngModel)]="selectedEditorial" name="updateEditorial"
+                  class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required>
+            <option value="" disabled selected>Seleccione una Editorial</option>
+            <option *ngFor="let editorial of editoriales" [value]="editorial.id">{{ editorial.nombre }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex justify-between mt-6">
+        <button type="button" (click)="closeUpdateProductoModal()"
+                class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">Cancelar</button>
+        <button type="submit"
+                class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Actualizar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+

@@ -13,15 +13,15 @@ export const routes: Routes = [
             },
             {
                 path: 'autores',
-                loadComponent: () => import('./views/autores/autores.component')
+                loadComponent: () => import('./views/fabricantes/autores.component')
             },
             {
                 path: 'generos',
-                loadComponent: () => import('./views/generos/generos.component')
+                loadComponent: () => import('./views/marcas/generos.component')
             },
             {
                 path: 'editoriales',
-                loadComponent: () => import('./views/editoriales/editoriales.component')
+                loadComponent: () => import('./views/modelos/editoriales.component')
             },
             {
                 path: 'productos',

@@ -32,11 +32,26 @@ export default class LoginComponent {
     };
     this.authService.login(user).subscribe({
       next: (resp: any) => {
-        console.log(resp);
+        console.log('Login response completa:', resp);
+        console.log('Todos los campos de la respuesta:', Object.keys(resp));
         if (resp.token && resp.token !== '') {
           sessionStorage.setItem("token", resp.token);
           sessionStorage.setItem("user_id", resp.user_id);
-          sessionStorage.setItem("user", JSON.stringify({ username: resp.username }));
+          console.log('Username from response:', resp.username);
+          console.log('Email used for login:', this.email);
+          
+          // Usar el email si no hay username en la respuesta
+          const usernameToSave = resp.username || resp.email || resp.user || this.email;
+          const userToSave = {
+            username: usernameToSave,
+            email: resp.email || this.email,
+            user_id: resp.user_id,
+            // Agregar otros campos que puedan venir del servidor
+            ...resp.user
+          };
+          
+          sessionStorage.setItem("user", JSON.stringify(userToSave));
+          console.log('User saved to sessionStorage:', JSON.stringify(userToSave));
           Swal.fire({
             position: "center",
             icon: "success",

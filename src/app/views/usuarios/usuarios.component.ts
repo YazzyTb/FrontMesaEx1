@@ -1,12 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { BrowserModule } from '@angular/platform-browser';
-import Swal from 'sweetalert2'
-import { error } from 'console';
+import Swal from 'sweetalert2';
 import { UserService } from '../../core/services/user.service';
 import { RoleService } from '../../core/services/role.service';
-
 
 @Component({
   selector: 'app-usuarios',
@@ -15,20 +12,20 @@ import { RoleService } from '../../core/services/role.service';
   templateUrl: './usuarios.component.html',
   styleUrl: './usuarios.component.css'
 })
-
 export default class UsuariosComponent {
 
   isModalRegisterUserOpen: boolean = false;
   isModalUpdateUserOpen: boolean = false;
+
+  // Datos del formulario de registro
   username: any;
   password: any;
   email: any;
   telefono: any;
   direccion: any;
   selectedRole: any = "";
-  roles: Array<any>;
-  rolesMap: { [key: number]: string } = {};
-  users: Array<any> = [];
+
+  // Datos del formulario de actualización
   usernameUpdate: any;
   passwordUpdate: any;
   emailUpdate: any;
@@ -37,8 +34,19 @@ export default class UsuariosComponent {
   roleUpdate: any;
   userIdSelected: any;
 
+  // Datos de usuario y roles
+  users: Array<any> = [];
+  roles: Array<any> = [];
+  rolesMap: { [key: number]: string } = {};
+
+  // Filtro
+  rolSeleccionado: string = "";
+
+  // Paginación
+  paginaActual: number = 1;
+  itemsPorPagina: number = 5;
+
   constructor(private userService: UserService, private roleService: RoleService) {
-    this.roles = [];
     this.getRoles();
     this.getUsers();
   }
@@ -46,27 +54,39 @@ export default class UsuariosComponent {
   getRoles() {
     this.roleService.getRoles().subscribe({
       next: (resp: any) => {
-        console.log(resp);
         this.roles = resp;
         this.rolesMap = {};
         this.roles.forEach((rol: any) => {
           this.rolesMap[rol.id] = rol.nombre;
         });
       },
-      error: (error: any) => {
-        console.log(error);
-      }
+      error: (error: any) => console.log(error)
     });
   }
 
+  getUsers() {
+    this.userService.getUsers().subscribe({
+      next: (resp: any) => this.users = resp,
+      error: (error: any) => console.log(error)
+    });
+  }
+
+  get usuariosFiltrados() {
+    if (!this.rolSeleccionado) return this.users;
+    return this.users.filter(user => user.rol == this.rolSeleccionado);
+  }
+
+  // Modal Registro
   activeRegisterForm() {
-
     this.isModalRegisterUserOpen = true;
+  }
 
+  closeRegisterUserModal() {
+    this.isModalRegisterUserOpen = false;
   }
 
   registerUser() {
-    let user = {
+    const user = {
       nombre_completo: this.username,
       password: this.password,
       email: this.email,
@@ -75,77 +95,41 @@ export default class UsuariosComponent {
       rol: this.selectedRole
     };
 
-    this.userService.registerUser(user).subscribe(
-      {
-        next: (resp: any) => {
-          console.log(resp);
-          if (resp.id || resp.id >= 1) {
-            this.getUsers();
-            Swal.fire({
-              position: "center",
-              icon: "success",
-              title: "Usuario registrado!",
-              showConfirmButton: false,
-              timer: 2500
-            });
-            setTimeout(() => {
-              this.closeRegisterUserModal();
-            }, 2600);
-          } else {
-            Swal.fire({
-              position: "center",
-              icon: "error",
-              title: "Error al registrar el usuario!",
-              showConfirmButton: false,
-              timer: 2500
-            });
-          }
-        },
-        error: (error: any) => {
-          console.log('Error al registrar usuario:', error);
-          Swal.fire({
-            position: "center",
-            icon: "error",
-            title: "Error al registrar el usuario!",
-            showConfirmButton: false,
-            timer: 2500
-          });
+    this.userService.registerUser(user).subscribe({
+      next: (resp: any) => {
+        if (resp.id || resp.id >= 1) {
+          this.getUsers();
+          Swal.fire({ icon: 'success', title: 'Usuario registrado!', timer: 2000, showConfirmButton: false });
+          this.closeRegisterUserModal();
+        } else {
+          Swal.fire({ icon: 'error', title: 'Error al registrar el usuario', timer: 2000, showConfirmButton: false });
         }
+      },
+      error: (error: any) => {
+        console.log('Error al registrar usuario:', error);
+        Swal.fire({ icon: 'error', title: 'Error al registrar el usuario', timer: 2000, showConfirmButton: false });
       }
-    );
+    });
   }
 
-
-  getUsers() {
-
-    this.userService.getUsers().subscribe(
-      {
-        next: (resp: any) => {
-          console.log(resp);
-          this.users = resp;
-        },
-        error: (error: any) => {
-          console.log(error);
-
-        }
-      }
-    );
-  }
-
+  // Modal Update
   openModalToUpdateUser(user: any) {
-    console.log(user);
     this.isModalUpdateUserOpen = true;
-    this.usernameUpdate = user.nombre_completo; // <== corregido
-    this.passwordUpdate = ""; // mejor dejarla vacía
+    this.userIdSelected = user.id;
+    this.usernameUpdate = user.nombre_completo;
+    this.passwordUpdate = '';
     this.emailUpdate = user.email;
     this.telefonoUpdate = user.telefono;
     this.direccionUpdate = user.direccion;
-    this.roleUpdate = user.rol?.id; // asegúrate de que sea "rol", no "role"
-    this.userIdSelected = user.id;
+    this.roleUpdate = user.rol;
+  }
+
+  closeUpdateUserModal() {
+    this.isModalUpdateUserOpen = false;
   }
 
   updateUser() {
-    let userData = {
+    const userData = {
       nombre_completo: this.usernameUpdate,
       password: this.passwordUpdate,
       email: this.emailUpdate,
@@ -154,71 +138,27 @@ export default class UsuariosComponent {
       rol: this.roleUpdate
     };
 
-    this.userService.updateUser(this.userIdSelected, userData).subscribe(
-      {
-        next: (resp: any) => {
-          console.log(resp);
-          if (resp) {
-            this.getUsers();
-            Swal.fire({
-              position: "center",
-              icon: "success",
-              title: "Usuario actualizado!",
-              showConfirmButton: false,
-              timer: 2500
-            });
-
-            setTimeout(() => {
-              this.closeUpdateUserModal();
-            }, 2600);
-          }
-
-        },
-        error: (error: any) => {
-          console.log(error);
-
-        }
-      }
-    );
+    this.userService.updateUser(this.userIdSelected, userData).subscribe({
+      next: (resp: any) => {
+        this.getUsers();
+        Swal.fire({ icon: 'success', title: 'Usuario actualizado!', timer: 2000, showConfirmButton: false });
+        this.closeUpdateUserModal();
+      },
+      error: (error: any) => console.log(error)
+    });
   }
 
   deleteUser(user: any) {
-
-
-    this.userService.deleteUser(user.id).subscribe(
-      {
-        next: (resp: any) => {
-          console.log(resp);
-          this.getUsers();
-          Swal.fire({
-            position: "center",
-            icon: "success",
-            title: "Usuario eliminado!",
-            showConfirmButton: false,
-            timer: 2500
-          });
-        },
-        error: (error: any) => {
-          console.log(error);
-
-        }
-      }
-    );
-
+    this.userService.deleteUser(user.id).subscribe({
+      next: (resp: any) => {
+        this.getUsers();
+        Swal.fire({ icon: 'success', title: 'Usuario eliminado!', timer: 2000, showConfirmButton: false });
+      },
+      error: (error: any) => console.log(error)
+    });
   }
 
-  updateRoleId($event: any) {
-    this.roleUpdate = $event;
-    console.log(this.roleUpdate);
-    console.log($event);
-
-  }
-
-  closeRegisterUserModal() {
-    this.isModalRegisterUserOpen = false;
-  }
-
-  closeUpdateUserModal() {
-    this.isModalUpdateUserOpen = false;
+  updateRoleId(event: any) {
+    this.roleUpdate = event;
   }
 }

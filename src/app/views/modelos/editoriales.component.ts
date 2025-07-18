@@ -21,6 +21,9 @@ export default class EditorialesComponent {
   editorialIdSelected: any;
   isModalRegisterEditorialOpen: boolean = false;
   isModalUpdateEditorialOpen: boolean = false;
+  // Paginación
+  paginaActual: number = 1;
+  itemsPorPagina: number = 5;
 
   constructor(private editorialService: EditorialesService) { }
 
@@ -141,6 +144,18 @@ export default class EditorialesComponent {
 
   closeUpdateEditorialModal() {
     this.isModalUpdateEditorialOpen = false;
+  }
+
+    siguientePagina() {
+    if (this.paginaActual * this.itemsPorPagina < this.editoriales.length) {
+      this.paginaActual++;
+    }
+  }
+
+  paginaAnterior() {
+    if (this.paginaActual > 1) {
+      this.paginaActual--;
+    }
   }
 }
 

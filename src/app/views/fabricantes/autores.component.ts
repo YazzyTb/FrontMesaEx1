@@ -14,15 +14,17 @@ import { AutoresService } from '../../core/services/autores.service';
 export default class AutoresComponent {
 
   autores: any[] = [];
-  autor: any;
   autorUpdate: any;
   nuevoAutor: any = { nombre: '' };
-  nombreAutor: string = '';
   autorIdSelected: any;
   isModalRegisterAutorOpen: boolean = false;
   isModalUpdateAutorOpen: boolean = false;
 
-  constructor(private autorService: AutoresService) { }
+  // Paginación
+  paginaActual: number = 1;
+  itemsPorPagina: number = 5;
+
+  constructor(private autorService: AutoresService) {}
 
   ngOnInit(): void {
     this.getAutores();
@@ -39,6 +41,11 @@ export default class AutoresComponent {
     });
   }
 
+  get autoresPaginados(): any[] {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    return this.autores.slice(inicio, inicio + this.itemsPorPagina);
+  }
+
   createAutor(): void {
     if (!this.nuevoAutor.nombre.trim()) {
       Swal.fire("Por favor ingrese el nombre del autor.");
@@ -50,9 +57,9 @@ export default class AutoresComponent {
       is_active: true
     };
 
-    this.autorService.createAutor(this.nuevoAutor).subscribe({
+    this.autorService.createAutor(autorData).subscribe({
       next: (data) => {
-        this.autores.push(data);
+        this.getAutores();
         this.nuevoAutor = { nombre: '' };
         Swal.fire({
           position: "center",
@@ -61,12 +68,56 @@ export default class AutoresComponent {
           showConfirmButton: false,
           timer: 2500
         });
-        setTimeout(() => {
-          this.closeRegisterAutorModal();
-        }, 2600);
+        setTimeout(() => this.closeRegisterAutorModal(), 2600);
       },
       error: (error) => {
         console.error('Error al crear un nuevo autor', error);
+        Swal.fire("Error al crear el autor.");
+      }
+    });
+  }
+
+  updateAutor() {
+    const autorData = {
+      nombre: this.autorUpdate,
+    };
+
+    this.autorService.updateAutor(this.autorIdSelected, autorData).subscribe({
+      next: (resp: any) => {
+        if (resp) {
+          this.getAutores();
+          Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "Autor actualizado!",
+            showConfirmButton: false,
+            timer: 2500
+          });
+          setTimeout(() => this.closeUpdateAutorModal(), 2600);
+        }
+      },
+      error: (error: any) => {
+        console.log(error);
+        Swal.fire("Error al actualizar el autor.");
+      }
+    });
+  }
+
+  deleteAutor(autor: any) {
+    this.autorService.deleteAutor(autor.id).subscribe({
+      next: () => {
+        this.getAutores();
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Autor eliminado!",
+          showConfirmButton: false,
+          timer: 2500
+        });
+      },
+      error: (error: any) => {
+        console.log(error);
+        Swal.fire("Error al eliminar el autor.");
       }
     });
   }
@@ -76,71 +127,28 @@ export default class AutoresComponent {
   }
 
   openModalToUpdateAutor(autor: any) {
-    console.log('autor id: ' + autor.id);
     this.isModalUpdateAutorOpen = true;
     this.autorUpdate = autor.nombre;
     this.autorIdSelected = autor.id;
   }
 
-  updateAutor() {
-    let autorData = {
-      nombre: this.autorUpdate,
-    };
-    this.autorService.updateAutor(this.autorIdSelected, autorData).subscribe(
-      {
-        next: (resp: any) => {
-          console.log(resp);
-          if (resp) {
-            this.getAutores();
-            Swal.fire({
-              position: "center",
-              icon: "success",
-              title: "Usuario actualizado!",
-              showConfirmButton: false,
-              timer: 2500
-            });
-
-            setTimeout(() => {
-              this.closeUpdateAutorModal();
-            }, 2600);
-          }
-
-        },
-        error: (error: any) => {
-          console.log(error);
-
-        }
-      }
-    );
-  }
-
-  deleteAutor(autor: any) {
-    this.autorService.deleteAutor(autor.id).subscribe(
-      {
-        next: (resp: any) => {
-          console.log(resp);
-          this.getAutores();
-          Swal.fire({
-            position: "center",
-            icon: "success",
-            title: "Autor eliminado!",
-            showConfirmButton: false,
-            timer: 2500
-          });
-        },
-        error: (error: any) => {
-          console.log(error);
-
-        }
-      }
-    );
-
-  }
   closeRegisterAutorModal() {
     this.isModalRegisterAutorOpen = false;
   }
 
   closeUpdateAutorModal() {
     this.isModalUpdateAutorOpen = false;
+  }
+
+  siguientePagina() {
+    if (this.paginaActual * this.itemsPorPagina < this.autores.length) {
+      this.paginaActual++;
+    }
+  }
+
+  paginaAnterior() {
+    if (this.paginaActual > 1) {
+      this.paginaActual--;
+    }
   }
 }

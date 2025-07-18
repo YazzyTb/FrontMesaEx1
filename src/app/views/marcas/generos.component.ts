@@ -21,7 +21,9 @@ export default class GenerosComponent {
   generoIdSelected: any;
   isModalRegisterGeneroOpen: boolean = false;
   isModalUpdateGeneroOpen: boolean = false;
-
+ // Paginación
+  paginaActual: number = 1;
+  itemsPorPagina: number = 5;
   constructor(private generoService: GenerosService) { }
 
   ngOnInit(): void {
@@ -141,5 +143,17 @@ export default class GenerosComponent {
 
   closeUpdateGeneroModal() {
     this.isModalUpdateGeneroOpen = false;
+  }
+  
+  siguientePagina() {
+    if (this.paginaActual * this.itemsPorPagina < this.generos.length) {
+      this.paginaActual++;
+    }
+  }
+
+  paginaAnterior() {
+    if (this.paginaActual > 1) {
+      this.paginaActual--;
+    }
   }
 }

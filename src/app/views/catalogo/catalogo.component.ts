@@ -23,6 +23,7 @@ interface Producto {
   editorial: { nombre: string } | null; // Ahora es un objeto con nombre o null
   genero: { nombre: string } | null; // Ahora es un objeto con nombre o null
   cantidad: number; // cantidad en el carrito
+  
 }
 
 
@@ -45,6 +46,8 @@ export default class CatalogoComponent implements OnInit {
   generosMap: { [key: number]: string } = {};
   autoresMap: { [key: number]: string } = {};
   editorialesMap: { [key: number]: string } = {};
+  paginaActual: number = 1;
+  cantidadPorPagina: number = 10;
 
   constructor(private productosService: ProductosService, private autoresService: AutoresService,
     private generosService: GenerosService,
@@ -204,4 +207,24 @@ export default class CatalogoComponent implements OnInit {
       }
     });
   }
+
+  get productosPaginados() {
+  const start = (this.paginaActual - 1) * this.cantidadPorPagina;
+  const end = start + this.cantidadPorPagina;
+  return this.productos.slice(start, end);
+}
+
+get paginasTotales() {
+  return Array(Math.ceil(this.productos.length / this.cantidadPorPagina))
+    .fill(0)
+    .map((_, i) => i + 1);
+}
+
+cambiarPagina(pagina: number) {
+  this.paginaActual = pagina;
+}
+
+actualizarCantidadPorPagina() {
+  this.paginaActual = 1; // reinicia a la primera página
+}
 }

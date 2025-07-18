@@ -55,6 +55,9 @@ export default class ProductosComponent {
   previewImageUrl: string | ArrayBuffer | null = null;
   isModalRegisterProductoOpen: boolean = false;
   isModalUpdateProductoOpen: boolean = false;
+   // Paginación
+  paginaActual: number = 1;
+  itemsPorPagina: number = 5;
 
   constructor(
     private productoService: ProductosService,
@@ -189,80 +192,62 @@ export default class ProductosComponent {
     });
   }
 
-  createProducto() {
-    if (this.files.length === 0) {
-      Swal.fire("Por favor selecciona una imagen");
-      return;
-    }
-    this.upload().subscribe({
-      next: (imgUrl: string) => {
-        let producto: any = {
-          nombre: this.nombre,
-          descripcion: this.descripcion,
-          imagen: imgUrl,
-          precio: this.precio.toString(),
-          stock: Number(this.stock),
-          is_active: true,
-          categoria_id: Number(this.selectedSubcategoria),
-          categoria: { nombre: "", is_active: true }, // puedes poner "" o recuperar el nombre desde la lista
-          genero_id: null,
-          genero: null,
-          editorial_id: null,
-          editorial: null,
-          autor_id: null,
-          autor: null
-        };
-        // Si la subcategoría es distinta de 1 (no es accesorio), asignar los valores normalmente
-        if (producto.categoria_id !== 1) {
-          producto.genero_id = this.selectedGenero !== "" ? Number(this.selectedGenero) : null;
-          producto.editorial_id = this.selectedEditorial !== "" ? Number(this.selectedEditorial) : null;
-          producto.autor_id = this.selectedAutor !== "" ? Number(this.selectedAutor) : null;
+ createProducto() {
+  if (this.files.length === 0) {
+    Swal.fire("Por favor selecciona una imagen");
+    return;
+  }
 
-          // puedes obtener el nombre desde tu lista local si quieres, ejemplo:
-          producto.genero = { nombre: this.generosMap[producto.genero_id], is_active: true };
-          producto.editorial = { nombre: this.editorialesMap[producto.editorial_id], is_active: true };
-          producto.autor = { nombre: this.autoresMap[producto.autor_id], is_active: true };
+  this.upload().subscribe({
+    next: (imgUrl: string) => {
+      let producto: any = {
+        nombre: this.nombre,
+        descripcion: this.descripcion,
+        imagen: imgUrl,
+        precio: this.precio.toString(),
+        stock: Number(this.stock),
+        is_active: true,
+        categoria_id: Number(this.selectedSubcategoria),
+      };
+
+      if (producto.categoria_id !== 1) {
+        if (this.selectedGenero) {
+          producto.genero_id = Number(this.selectedGenero);
         }
-        console.log(producto);
-        this.productoService.createProducto(producto).subscribe({
-          next: (resp: any) => {
-            if (resp.id || resp.id >= 1) {
-              this.getProductos();
-              Swal.fire({
-                position: "center",
-                icon: "success",
-                title: "Producto registrado!",
-                showConfirmButton: false,
-                timer: 2500
-              });
-              setTimeout(() => this.closeRegisterProductoModal(), 2600);
-            } else {
-              Swal.fire({
-                position: "center",
-                icon: "error",
-                title: "Error al registrar el Producto!",
-                showConfirmButton: false,
-                timer: 2500
-              });
-            }
-          },
-          error: () => {
+        if (this.selectedEditorial) {
+          producto.editorial_id = Number(this.selectedEditorial);
+        }
+        if (this.selectedAutor) {
+          producto.autor_id = Number(this.selectedAutor);
+        }
+      }
+
+      this.productoService.createProducto(producto).subscribe({
+        next: (resp: any) => {
+          if (resp?.id) {
+            this.getProductos();
             Swal.fire({
               position: "center",
-              icon: "error",
-              title: "Error al registrar el Producto!",
+              icon: "success",
+              title: "Producto registrado!",
               showConfirmButton: false,
               timer: 2500
             });
+            setTimeout(() => this.closeRegisterProductoModal(), 2600);
+          } else {
+            Swal.fire("Error al registrar el Producto");
           }
-        });
-      },
-      error: (e: any) => {
-        console.log(e);
-        Swal.fire("Error al subir la imagen");
-      }
-    });
-  }
+        },
+        error: () => Swal.fire("Error al registrar el Producto"),
+      });
+    },
+    error: (e: any) => {
+      console.log(e);
+      Swal.fire("Error al subir la imagen");
+    }
+  });
+}
+
 
   activeRegisterForm() {
     this.isModalRegisterProductoOpen = true;
@@ -307,70 +292,51 @@ export default class ProductosComponent {
     }
   }
 
-  enviarActualizacion(imgUrl: string) {
-    const categoriaId = Number(this.subcategoriaUpdate);
+ enviarActualizacion(imgUrl: string) {
+  const categoriaId = Number(this.subcategoriaUpdate);
 
-    const productoData: any = {
-      nombre: this.nombreUpdate,
-      descripcion: this.descripcionUpdate,
-      imagen: imgUrl,
-      precio: this.precioUpdate.toString(),
-      stock: Number(this.stockUpdate),
-      is_active: this.is_activeUpdate,
-      categoria_id: categoriaId,
-      categoria: {
-        nombre: this.subcategorias[categoriaId] || "",
-        is_active: true
-      },
-      genero_id: null,
-      genero: null,
-      editorial_id: null,
-      editorial: null,
-      autor_id: null,
-      autor: null
-    };
+  const productoData: any = {
+    nombre: this.nombreUpdate,
+    descripcion: this.descripcionUpdate,
+    imagen: imgUrl,
+    precio: this.precioUpdate.toString(),
+    stock: Number(this.stockUpdate),
+    is_active: this.is_activeUpdate,
+    categoria_id: categoriaId,
+  };
 
-    // Solo si NO es accesorio
-    if (categoriaId !== 1) {
+  if (categoriaId !== 1) {
+    if (this.selectedGenero) {
       productoData.genero_id = Number(this.selectedGenero);
-      productoData.genero = {
-        nombre: this.generosMap[productoData.genero_id] || "",
-        is_active: true
-      };
-
-      productoData.editorial_id = Number(this.selectedEditorial);
-      productoData.editorial = {
-        nombre: this.editorialesMap[productoData.editorial_id] || "",
-        is_active: true
-      };
-
-      productoData.autor_id = Number(this.selectedAutor);
-      productoData.autor = {
-        nombre: this.autoresMap[productoData.autor_id] || "",
-        is_active: true
-      };
     }
-
-    this.productoService.updateProducto(this.productoIdSelected, productoData).subscribe({
-      next: (resp: any) => {
-        if (resp) {
-          this.getProductos();
-          Swal.fire({
-            position: "center",
-            icon: "success",
-            title: "Producto actualizado!",
-            showConfirmButton: false,
-            timer: 2500
-          });
-          setTimeout(() => this.closeUpdateProductoModal(), 2600);
-        }
-      },
-      error: (error: any) => {
-        console.log(error);
-        Swal.fire("Error al actualizar el producto");
-      }
-    });
+    if (this.selectedEditorial) {
+      productoData.editorial_id = Number(this.selectedEditorial);
+    }
+    if (this.selectedAutor) {
+      productoData.autor_id = Number(this.selectedAutor);
+    }
   }
+
+  this.productoService.updateProducto(this.productoIdSelected, productoData).subscribe({
+    next: (resp: any) => {
+      if (resp) {
+        this.getProductos();
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Producto actualizado!",
+          showConfirmButton: false,
+          timer: 2500
+        });
+        setTimeout(() => this.closeUpdateProductoModal(), 2600);
+      }
+    },
+    error: (error: any) => {
+      console.log(error);
+      Swal.fire("Error al actualizar el producto");
+    }
+  });
+}
 
 
   deleteProducto(producto: any) {
@@ -407,5 +373,17 @@ export default class ProductosComponent {
     this.selectedAutor = '';
     this.selectedEditorial = '';
     this.files = [];
+  }
+
+  siguientePagina() {
+    if (this.paginaActual * this.itemsPorPagina < this.generos.length) {
+      this.paginaActual++;
+    }
+  }
+
+  paginaAnterior() {
+    if (this.paginaActual > 1) {
+      this.paginaActual--;
+    }
   }
 }
