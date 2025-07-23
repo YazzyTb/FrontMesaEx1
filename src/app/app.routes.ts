@@ -48,6 +48,10 @@ export const routes: Routes = [
                 loadComponent: () => import('./views/reportes/reportes.component').then(m => m.ReportesComponent)
             },
             {
+                path: 'ofertas',
+                loadComponent: () => import('./views/ofertas/ofertas.component').then(m => m.OfertasComponent)
+            },
+            {
                 path: '',
                 redirectTo: 'login',
                 pathMatch: 'full'

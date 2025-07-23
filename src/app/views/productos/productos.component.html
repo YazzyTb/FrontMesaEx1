@@ -40,12 +40,27 @@
               <img *ngIf="producto.imagen" [src]="producto.imagen" alt="Producto" class="h-12 w-12 object-cover rounded">
             </td>
             <td class="py-3 px-6 flex gap-2">
-              <svg (click)="openModalToUpdateproducto(producto)" xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 24 24" fill="#0F766E" class="cursor-pointer">
+              <!-- Botón Editar -->
+              <svg (click)="openModalToUpdateproducto(producto)" xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 24 24" fill="#0F766E" class="cursor-pointer" title="Editar producto">
                 <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.9959.9959 0 0 0 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
               </svg>
-              <svg (click)="deleteProducto(producto)" xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 24 24" fill="#DC2626" class="cursor-pointer">
+              
+              <!-- Botón Eliminar -->
+              <svg (click)="deleteProducto(producto)" xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 24 24" fill="#DC2626" class="cursor-pointer" title="Eliminar producto">
                 <path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1z"/>
               </svg>
+              
+              <!-- Botón Asignar Oferta -->
+              <svg (click)="abrirModalOfertas(producto)" xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 24 24" fill="#7C3AED" class="cursor-pointer" title="Asignar oferta">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+              
+              <!-- Indicador de oferta actual -->
+              <div *ngIf="producto.oferta" class="flex items-center">
+                <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full" [title]="'Oferta: ' + producto.oferta.nombre + ' (' + formatearDescuento(producto.oferta.descuento) + ')'">
+                  {{ formatearDescuento(producto.oferta.descuento) }}
+                </span>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -247,6 +262,127 @@
                 class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Actualizar</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- MODAL ASIGNAR OFERTA -->
+<div *ngIf="isModalOfertasOpen"
+     class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white rounded-xl shadow-lg w-11/12 sm:w-[90%] md:w-[80%] lg:w-[500px] max-h-screen overflow-y-auto p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold text-purple-800">Gestionar Oferta</h2>
+      <button (click)="cerrarModalOfertas()" class="text-gray-600 text-2xl font-bold hover:text-gray-900">&times;</button>
+    </div>
+
+    <!-- Información del producto -->
+    <div *ngIf="productoSeleccionadoParaOferta" class="mb-6 p-4 bg-gray-50 rounded-lg">
+      <h3 class="font-semibold text-gray-800 mb-2">Producto seleccionado:</h3>
+      <div class="flex items-center gap-4">
+        <img *ngIf="productoSeleccionadoParaOferta.imagen" 
+             [src]="productoSeleccionadoParaOferta.imagen" 
+             alt="Producto" 
+             class="h-16 w-16 object-cover rounded">
+        <div>
+          <p class="font-medium">{{ productoSeleccionadoParaOferta.nombre }}</p>
+          <p class="text-sm text-gray-600">Precio: ${{ productoSeleccionadoParaOferta.precio }}</p>
+          
+          <!-- Mostrar oferta actual si existe -->
+          <div *ngIf="productoSeleccionadoParaOferta.oferta" class="mt-2">
+            <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+              Oferta actual: {{ productoSeleccionadoParaOferta.oferta.nombre }} 
+              ({{ formatearDescuento(productoSeleccionadoParaOferta.oferta.descuento) }})
+            </span>
+          </div>
+          
+          <!-- Mostrar precio con descuento si tiene oferta -->
+          <div *ngIf="productoSeleccionadoParaOferta.precio_con_descuento && productoSeleccionadoParaOferta.precio_con_descuento !== productoSeleccionadoParaOferta.precio" class="mt-1">
+            <p class="text-sm text-green-600">
+              Precio con descuento: ${{ productoSeleccionadoParaOferta.precio_con_descuento }}
+              <span class="text-xs">(Ahorro: ${{ calcularAhorro(productoSeleccionadoParaOferta).toFixed(2) }})</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seleccionar oferta -->
+    <div class="mb-6">
+      <label for="ofertaSelect" class="block text-sm font-medium text-gray-700 mb-2">
+        Seleccionar oferta:
+      </label>
+      <select id="ofertaSelect" 
+              [(ngModel)]="ofertaSeleccionada" 
+              name="ofertaSelect"
+              class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-600">
+        <option value="" disabled>Seleccione una oferta</option>
+        <option *ngFor="let oferta of ofertas" [value]="oferta.id">
+          {{ oferta.nombre }} - {{ formatearDescuento(oferta.descuento) }}
+          <span class="text-sm text-gray-500">
+            ({{ oferta.fecha_inicio | date:'dd/MM/yyyy' }} - {{ oferta.fecha_fin | date:'dd/MM/yyyy' }})
+          </span>
+        </option>
+      </select>
+      
+      <!-- Mensaje si no hay ofertas -->
+      <div *ngIf="ofertas.length === 0" class="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <p class="text-sm text-yellow-800">
+          <strong>No hay ofertas vigentes disponibles.</strong><br>
+          Las ofertas deben estar activas y dentro del rango de fechas para aparecer aquí.
+        </p>
+      </div>
+    </div>
+
+    <!-- Información de la oferta seleccionada -->
+    <div *ngIf="ofertaSeleccionada" class="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+      <h4 class="font-semibold text-purple-800 mb-2">Detalles de la oferta:</h4>
+      <div *ngFor="let oferta of ofertas">
+        <div *ngIf="oferta.id == ofertaSeleccionada">
+          <p><strong>Nombre:</strong> {{ oferta.nombre }}</p>
+          <p><strong>Descripción:</strong> {{ oferta.descripcion }}</p>
+          <p><strong>Descuento:</strong> {{ formatearDescuento(oferta.descuento) }}</p>
+          <p><strong>Vigencia:</strong> {{ oferta.fecha_inicio | date:'dd/MM/yyyy' }} - {{ oferta.fecha_fin | date:'dd/MM/yyyy' }}</p>
+          <p><strong>Productos en esta oferta:</strong> {{ oferta.productos_count }}</p>
+          
+          <!-- Cálculo del precio con descuento -->
+          <div *ngIf="productoSeleccionadoParaOferta" class="mt-3 p-2 bg-white rounded border">
+            <p class="text-sm">
+              <strong>Precio original:</strong> ${{ productoSeleccionadoParaOferta.precio }}
+            </p>
+            <p class="text-sm text-green-600">
+              <strong>Precio con descuento:</strong> ${{ calcularPrecioConDescuento(productoSeleccionadoParaOferta.precio, oferta.descuento).toFixed(2) }}
+            </p>
+            <p class="text-sm text-blue-600">
+              <strong>Ahorro:</strong> ${{ calcularAhorroOferta(productoSeleccionadoParaOferta.precio, oferta.descuento).toFixed(2) }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="flex justify-between gap-3">
+      <button type="button" 
+              (click)="cerrarModalOfertas()"
+              class="flex-1 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+        Cancelar
+      </button>
+      
+      <!-- Botón para quitar oferta (solo si el producto ya tiene una oferta) -->
+      <button *ngIf="productoSeleccionadoParaOferta?.oferta" 
+              type="button"
+              (click)="quitarOferta()"
+              class="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">
+        Quitar Oferta
+      </button>
+      
+      <!-- Botón para asignar oferta -->
+      <button type="button" 
+              (click)="asignarOferta()"
+              [disabled]="!ofertaSeleccionada || ofertas.length === 0"
+              class="flex-1 bg-purple-700 text-white px-4 py-2 rounded-lg hover:bg-purple-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
+        {{ productoSeleccionadoParaOferta?.oferta ? 'Cambiar Oferta' : 'Asignar Oferta' }}
+      </button>
+    </div>
   </div>
 </div>
 

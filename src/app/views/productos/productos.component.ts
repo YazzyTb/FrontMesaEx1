@@ -8,6 +8,7 @@ import { GenerosService } from '../../core/services/generos.service';
 import { CategoriasService } from '../../core/services/categorias.service'; // Este servicio en realidad maneja subcategorías
 import { EditorialesService } from '../../core/services/editoriales.service';
 import { ImgDropService } from '../../core/services/img-drop.service';
+import { OfertasService, Oferta } from '../../core/services/ofertas.service';
 import { NgxDropzoneModule } from 'ngx-dropzone';
 import { map, Observable } from 'rxjs';
 
@@ -55,7 +56,14 @@ export default class ProductosComponent {
   previewImageUrl: string | ArrayBuffer | null = null;
   isModalRegisterProductoOpen: boolean = false;
   isModalUpdateProductoOpen: boolean = false;
-   // Paginación
+  
+  // Variables para ofertas
+  ofertas: Oferta[] = [];
+  isModalOfertasOpen: boolean = false;
+  productoSeleccionadoParaOferta: any = null;
+  ofertaSeleccionada: number | null = null;
+  
+  // Paginación
   paginaActual: number = 1;
   itemsPorPagina: number = 5;
 
@@ -65,13 +73,15 @@ export default class ProductosComponent {
     private generosService: GenerosService,
     private editorialesService: EditorialesService,
     private categoriasService: CategoriasService, // Este en realidad es para subcategorías
-    private imgdropService: ImgDropService
+    private imgdropService: ImgDropService,
+    private ofertasService: OfertasService
   ) {
     this.getProductos();
     this.getAutores();
     this.getGeneros();
     this.getEditoriales();
     this.getSubcategorias();
+    this.getOfertas();
   }
 
   files: File[] = [];
@@ -385,5 +395,223 @@ export default class ProductosComponent {
     if (this.paginaActual > 1) {
       this.paginaActual--;
     }
+  }
+
+  // ==================== MÉTODOS PARA OFERTAS ====================
+
+  /**
+   * Obtiene todas las ofertas vigentes
+   */
+  getOfertas(): void {
+    this.ofertasService.getOfertasVigentes().subscribe({
+      next: (response) => {
+        this.ofertas = response.ofertas;
+        console.log("Ofertas vigentes:", this.ofertas);
+      },
+      error: (error) => {
+        console.error('Error al obtener ofertas vigentes', error);
+        // Fallback: obtener todas las ofertas
+        this.ofertasService.getOfertas().subscribe({
+          next: (ofertas) => {
+            this.ofertas = ofertas;
+            console.log("Todas las ofertas:", this.ofertas);
+          },
+          error: (err) => {
+            console.error('Error al obtener ofertas', err);
+            this.ofertas = [];
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Abre el modal para asignar oferta a un producto
+   */
+  abrirModalOfertas(producto: any): void {
+    this.productoSeleccionadoParaOferta = producto;
+    this.ofertaSeleccionada = producto.oferta?.id || null;
+    this.isModalOfertasOpen = true;
+    
+    // Refrescar ofertas por si hay cambios
+    this.getOfertas();
+  }
+
+  /**
+   * Cierra el modal de ofertas
+   */
+  cerrarModalOfertas(): void {
+    this.isModalOfertasOpen = false;
+    this.productoSeleccionadoParaOferta = null;
+    this.ofertaSeleccionada = null;
+  }
+
+  /**
+   * Asigna la oferta seleccionada al producto
+   */
+  asignarOferta(): void {
+    if (!this.productoSeleccionadoParaOferta || !this.ofertaSeleccionada) {
+      Swal.fire('Error', 'Debe seleccionar una oferta', 'error');
+      return;
+    }
+
+    // Mostrar loading
+    Swal.fire({
+      title: 'Asignando oferta...',
+      text: 'Por favor espere',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    this.ofertasService.aplicarOfertaAProducto(
+      this.productoSeleccionadoParaOferta.id, 
+      this.ofertaSeleccionada
+    ).subscribe({
+      next: (response) => {
+        Swal.close();
+        
+        Swal.fire({
+          icon: 'success',
+          title: '¡Oferta asignada!',
+          text: response.mensaje,
+          showConfirmButton: true,
+          timer: 3000
+        });
+        
+        // Actualizar la lista de productos
+        this.getProductos();
+        this.cerrarModalOfertas();
+      },
+      error: (error) => {
+        Swal.close();
+        console.error('Error al asignar oferta:', error);
+        
+        let mensaje = 'Error al asignar la oferta';
+        if (error.error?.error) {
+          mensaje = error.error.error;
+        } else if (error.error?.mensaje) {
+          mensaje = error.error.mensaje;
+        }
+        
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: mensaje
+        });
+      }
+    });
+  }
+
+  /**
+   * Quita la oferta del producto
+   */
+  quitarOferta(): void {
+    if (!this.productoSeleccionadoParaOferta) {
+      return;
+    }
+
+    // Confirmación
+    Swal.fire({
+      title: '¿Está seguro?',
+      text: '¿Desea quitar la oferta de este producto?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, quitar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Mostrar loading
+        Swal.fire({
+          title: 'Quitando oferta...',
+          text: 'Por favor espere',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        this.ofertasService.quitarOfertaDeProducto(this.productoSeleccionadoParaOferta.id).subscribe({
+          next: (response) => {
+            Swal.close();
+            
+            Swal.fire({
+              icon: 'success',
+              title: '¡Oferta removida!',
+              text: response.mensaje,
+              showConfirmButton: true,
+              timer: 3000
+            });
+            
+            // Actualizar la lista de productos
+            this.getProductos();
+            this.cerrarModalOfertas();
+          },
+          error: (error) => {
+            Swal.close();
+            console.error('Error al quitar oferta:', error);
+            
+            let mensaje = 'Error al quitar la oferta';
+            if (error.error?.error) {
+              mensaje = error.error.error;
+            }
+            
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: mensaje
+            });
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Obtiene el estado visual de la oferta del producto
+   */
+  getEstadoOferta(producto: any): string {
+    if (producto.oferta) {
+      return this.ofertasService.getEstadoOferta(producto.oferta);
+    }
+    return 'sin-oferta';
+  }
+
+  /**
+   * Formatea el descuento para mostrar
+   */
+  formatearDescuento(descuento: string): string {
+    return this.ofertasService.formatearDescuento(descuento);
+  }
+
+  /**
+   * Calcula el ahorro del producto
+   */
+  calcularAhorro(producto: any): number {
+    if (producto.precio && producto.precio_con_descuento) {
+      return this.ofertasService.calcularAhorro(producto.precio, producto.precio_con_descuento);
+    }
+    return 0;
+  }
+
+  /**
+   * Calcula el precio con descuento para una oferta específica
+   */
+  calcularPrecioConDescuento(precio: string, descuento: string): number {
+    const precioNum = parseFloat(precio);
+    const descuentoNum = parseFloat(descuento);
+    return precioNum * (1 - descuentoNum / 100);
+  }
+
+  /**
+   * Calcula el ahorro para una oferta específica
+   */
+  calcularAhorroOferta(precio: string, descuento: string): number {
+    const precioNum = parseFloat(precio);
+    const descuentoNum = parseFloat(descuento);
+    return precioNum * (descuentoNum / 100);
   }
 }

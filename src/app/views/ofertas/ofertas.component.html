@@ -1,0 +1,648 @@
+<!-- Contenedor principal -->
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Encabezado -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Gestión de Ofertas</h1>
+      <p class="mt-2 text-gray-600">Administra las ofertas y promociones de tu tienda</p>
+    </div>
+
+    <!-- Card principal -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      
+      <!-- Header de la tabla -->
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between p-6 border-b border-gray-300 gap-4">
+        <div class="flex items-center gap-4">
+          <h2 class="text-lg font-bold text-gray-900">Lista de Ofertas</h2>
+          <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-sm font-medium">
+            {{ ofertasFiltradas.length }} ofertas
+          </span>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+          <!-- Buscador -->
+          <div class="relative flex-1 lg:w-64">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input 
+              type="text" 
+              [(ngModel)]="searchOferta" 
+              name="searchOferta"
+              (ngModelChange)="onFiltroChange()"
+              placeholder="Buscar ofertas..."
+              class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+          </div>
+
+          <!-- Filtro por estado -->
+          <select 
+            [(ngModel)]="filtroEstado" 
+            name="filtroEstado"
+            (ngModelChange)="onFiltroChange()"
+            class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white">
+            <option value="">Todos los estados</option>
+            <option value="vigente">Vigentes</option>
+            <option value="expirada">Expiradas</option>
+            <option value="proxima">Próximas</option>
+            <option value="inactiva">Inactivas</option>
+          </select>
+
+          <!-- Botón Nueva Oferta -->
+          <button 
+            (click)="abrirModalCrearOferta()" 
+            class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2 whitespace-nowrap">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Nueva Oferta
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="cargando" class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+        <span class="ml-2 text-gray-600">Cargando ofertas...</span>
+      </div>
+
+      <!-- Tabla de ofertas -->
+      <div *ngIf="!cargando" class="overflow-x-auto">
+        <table class="w-full table-auto">
+          <thead class="bg-gray-800 text-white">
+            <tr>
+              <th class="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">ID</th>
+              <th class="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Nombre</th>
+              <th class="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Descripción</th>
+              <th class="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Descuento</th>
+              <th class="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Fecha Inicio</th>
+              <th class="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Fecha Fin</th>
+              <th class="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Estado</th>
+              <th class="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Productos</th>
+              <th class="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <tr *ngFor="let oferta of ofertasPaginadas; let i = index" 
+                class="hover:bg-gray-50 transition-colors"
+                [class.bg-gray-50]="i % 2 === 1">
+              
+              <!-- ID -->
+              <td class="py-4 px-6 text-sm font-medium text-gray-900">
+                #{{ oferta.id }}
+              </td>
+              
+              <!-- Nombre -->
+              <td class="py-4 px-6">
+                <div class="text-sm font-medium text-gray-900">{{ oferta.nombre }}</div>
+              </td>
+              
+              <!-- Descripción -->
+              <td class="py-4 px-6">
+                <div class="text-sm text-gray-600 max-w-xs truncate" [title]="oferta.descripcion">
+                  {{ oferta.descripcion }}
+                </div>
+              </td>
+              
+              <!-- Descuento -->
+              <td class="py-4 px-6">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  {{ formatearDescuento(oferta.descuento) }}
+                </span>
+              </td>
+              
+              <!-- Fecha Inicio -->
+              <td class="py-4 px-6 text-sm text-gray-600">
+                {{ formatearFecha(oferta.fecha_inicio) }}
+              </td>
+              
+              <!-- Fecha Fin -->
+              <td class="py-4 px-6 text-sm text-gray-600">
+                {{ formatearFecha(oferta.fecha_fin) }}
+                <div *ngIf="getEstadoOferta(oferta) === 'vigente'" class="text-xs text-blue-600 mt-1">
+                  {{ diasRestantes(oferta.fecha_fin) }} días restantes
+                </div>
+              </td>
+              
+              <!-- Estado -->
+              <td class="py-4 px-6">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                      [class]="getClaseEstado(getEstadoOferta(oferta))">
+                  {{ getTextoEstado(getEstadoOferta(oferta)) }}
+                </span>
+              </td>
+              
+              <!-- Productos -->
+              <td class="py-4 px-6">
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    {{ oferta.productos_count }} productos
+                  </span>
+                </div>
+              </td>
+              
+              <!-- Acciones -->
+              <td class="py-4 px-6">
+                <div class="flex items-center gap-2">
+                  
+                  <!-- Botón Editar -->
+                  <button 
+                    (click)="abrirModalEditarOferta(oferta)"
+                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    title="Editar oferta">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  
+                  <!-- Botón Eliminar -->
+                  <button 
+                    (click)="eliminarOferta(oferta)"
+                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Eliminar oferta">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                  
+                  <!-- Botón Asignar Productos -->
+                  <button 
+                    (click)="abrirModalAsignarProductos(oferta)"
+                    class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                    title="Asignar productos">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 011 1v1a1 1 0 01-1 1v10a2 2 0 01-2 2H6a2 2 0 01-2-2V7a1 1 0 01-1-1V5a1 1 0 011-1h4zM9 3h6v1H9V3zm2 7a1 1 0 011-1h0a1 1 0 011 1v4a1 1 0 01-1 1h0a1 1 0 01-1-1v-4z" />
+                    </svg>
+                  </button>
+                  
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <!-- Mensaje si no hay ofertas -->
+        <div *ngIf="ofertasFiltradas.length === 0" class="text-center py-12">
+          <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 011 1v1a1 1 0 01-1 1v10a2 2 0 01-2 2H6a2 2 0 01-2-2V7a1 1 0 01-1-1V5a1 1 0 011-1h4z" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">
+            {{ ofertas.length === 0 ? 'No hay ofertas' : 'No se encontraron ofertas' }}
+          </h3>
+          <p class="mt-1 text-sm text-gray-500">
+            {{ ofertas.length === 0 ? 'Comienza creando tu primera oferta' : 'Intenta con otros términos de búsqueda o cambia los filtros' }}
+          </p>
+          <div class="mt-6" *ngIf="ofertas.length === 0">
+            <button 
+              (click)="abrirModalCrearOferta()"
+              class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700">
+              <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Nueva Oferta
+            </button>
+          </div>
+          <div class="mt-6" *ngIf="ofertas.length > 0">
+            <button 
+              (click)="limpiarFiltros()"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+              <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Limpiar Filtros
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paginación -->
+      <div *ngIf="ofertasFiltradas.length > itemsPorPagina" class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+        
+        <!-- Información de resultados -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div class="text-sm text-gray-700">
+            Mostrando 
+            <span class="font-medium">{{ (paginaActual - 1) * itemsPorPagina + 1 }}</span>
+            a 
+            <span class="font-medium">{{ Math.min(paginaActual * itemsPorPagina, ofertasFiltradas.length) }}</span>
+            de 
+            <span class="font-medium">{{ ofertasFiltradas.length }}</span>
+            ofertas
+          </div>
+
+          <!-- Controles de paginación -->
+          <div class="flex items-center gap-2">
+            
+            <!-- Botón Primera página -->
+            <button 
+              (click)="cambiarPagina(1)"
+              [disabled]="paginaActual === 1"
+              class="inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Primera página">
+              <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              </svg>
+            </button>
+
+            <!-- Botón Anterior -->
+            <button 
+              (click)="cambiarPagina(paginaActual - 1)"
+              [disabled]="paginaActual === 1"
+              class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Página anterior">
+              <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+              Anterior
+            </button>
+
+            <!-- Números de página -->
+            <div class="hidden sm:flex items-center">
+              <ng-container *ngFor="let pagina of getNumerosPaginas()">
+                <button 
+                  *ngIf="pagina !== '...'"
+                  (click)="cambiarPagina(+pagina)"
+                  [class]="pagina === paginaActual.toString() ? 
+                    'bg-purple-600 text-white border-purple-600' : 
+                    'bg-white text-gray-500 border-gray-300 hover:bg-gray-50'"
+                  class="inline-flex items-center px-3 py-2 text-sm font-medium border transition-colors">
+                  {{ pagina }}
+                </button>
+                <span 
+                  *ngIf="pagina === '...'"
+                  class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300">
+                  ...
+                </span>
+              </ng-container>
+            </div>
+
+            <!-- Indicador de página actual (móvil) -->
+            <div class="sm:hidden">
+              <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-purple-600 bg-purple-50 border border-purple-200 rounded-md">
+                {{ paginaActual }} / {{ totalPaginas }}
+              </span>
+            </div>
+
+            <!-- Botón Siguiente -->
+            <button 
+              (click)="cambiarPagina(paginaActual + 1)"
+              [disabled]="paginaActual === totalPaginas"
+              class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Página siguiente">
+              Siguiente
+              <svg class="h-4 w-4 ml-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            <!-- Botón Última página -->
+            <button 
+              (click)="cambiarPagina(totalPaginas)"
+              [disabled]="paginaActual === totalPaginas"
+              class="inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Última página">
+              <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Selector de elementos por página -->
+        <div class="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div class="flex items-center gap-2">
+            <label for="itemsPorPagina" class="text-sm text-gray-700">Mostrar:</label>
+            <select 
+              id="itemsPorPagina"
+              [(ngModel)]="itemsPorPagina" 
+              name="itemsPorPagina"
+              (change)="onCambiarItemsPorPagina()"
+              class="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <span class="text-sm text-gray-700">ofertas por página</span>
+          </div>
+
+          <!-- Ir a página específica -->
+          <div class="flex items-center gap-2">
+            <label for="irAPagina" class="text-sm text-gray-700">Ir a página:</label>
+            <input 
+              id="irAPagina"
+              type="number" 
+              min="1" 
+              [max]="totalPaginas"
+              [value]="paginaActual"
+              (keyup.enter)="irAPagina($event)"
+              class="w-16 text-sm border border-gray-300 rounded-md px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+            <button 
+              (click)="irAPagina($event)"
+              class="px-2 py-1 text-sm bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors">
+              Ir
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CREAR/EDITAR OFERTA -->
+<div *ngIf="isModalOfertaOpen" 
+     class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-xl shadow-lg w-full max-w-md max-h-screen overflow-y-auto">
+    
+    <!-- Header del modal -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+      <h2 class="text-xl font-bold text-gray-900">
+        {{ isEditMode ? 'Editar Oferta' : 'Nueva Oferta' }}
+      </h2>
+      <button 
+        (click)="cerrarModalOferta()" 
+        class="text-gray-400 hover:text-gray-600 transition-colors">
+        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Formulario -->
+    <form (ngSubmit)="guardarOferta()" class="p-6 space-y-4">
+      
+      <!-- Nombre -->
+      <div>
+        <label for="nombre" class="block text-sm font-medium text-gray-700 mb-1">
+          Nombre de la oferta *
+        </label>
+        <input 
+          id="nombre"
+          type="text" 
+          [(ngModel)]="nombre" 
+          name="nombre"
+          required
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          placeholder="Ej: Descuento de Verano">
+      </div>
+
+      <!-- Descripción -->
+      <div>
+        <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-1">
+          Descripción *
+        </label>
+        <textarea 
+          id="descripcion"
+          [(ngModel)]="descripcion" 
+          name="descripcion"
+          required
+          rows="3"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          placeholder="Describe los detalles de la oferta"></textarea>
+      </div>
+
+      <!-- Descuento -->
+      <div>
+        <label for="descuento" class="block text-sm font-medium text-gray-700 mb-1">
+          Descuento (%) *
+        </label>
+        <input 
+          id="descuento"
+          type="number" 
+          [(ngModel)]="descuento" 
+          name="descuento"
+          required
+          min="1"
+          max="100"
+          step="0.01"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          placeholder="Ej: 25">
+      </div>
+
+      <!-- Fechas -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label for="fecha_inicio" class="block text-sm font-medium text-gray-700 mb-1">
+            Fecha inicio *
+          </label>
+          <input 
+            id="fecha_inicio"
+            type="date" 
+            [(ngModel)]="fecha_inicio" 
+            name="fecha_inicio"
+            required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+        </div>
+        <div>
+          <label for="fecha_fin" class="block text-sm font-medium text-gray-700 mb-1">
+            Fecha fin *
+          </label>
+          <input 
+            id="fecha_fin"
+            type="date" 
+            [(ngModel)]="fecha_fin" 
+            name="fecha_fin"
+            required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+        </div>
+      </div>
+
+      <!-- Estado activo -->
+      <div class="flex items-center">
+        <input 
+          id="is_active"
+          type="checkbox" 
+          [(ngModel)]="is_active" 
+          name="is_active"
+          class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+        <label for="is_active" class="ml-2 text-sm text-gray-700">
+          Oferta activa
+        </label>
+      </div>
+
+      <!-- Botones -->
+      <div class="flex justify-end gap-3 pt-4">
+        <button 
+          type="button" 
+          (click)="cerrarModalOferta()"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors">
+          Cancelar
+        </button>
+        <button 
+          type="submit"
+          class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-lg hover:bg-purple-700 transition-colors">
+          {{ isEditMode ? 'Actualizar' : 'Crear' }} Oferta
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL ASIGNAR PRODUCTOS -->
+<div *ngIf="isModalAsignarProductosOpen" 
+     class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-xl shadow-lg w-full max-w-4xl max-h-screen overflow-hidden flex flex-col">
+    
+    <!-- Header del modal -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+      <div>
+        <h2 class="text-xl font-bold text-gray-900">Asignar Productos</h2>
+        <p class="text-sm text-gray-600 mt-1">
+          Oferta: <span class="font-medium text-purple-600">{{ ofertaParaAsignar?.nombre }}</span>
+          ({{ formatearDescuento(ofertaParaAsignar?.descuento || '0') }})
+        </p>
+      </div>
+      <button 
+        (click)="cerrarModalAsignarProductos()" 
+        class="text-gray-400 hover:text-gray-600 transition-colors">
+        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Barra de búsqueda y controles -->
+    <div class="p-6 border-b border-gray-200">
+      <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        
+        <!-- Buscador -->
+        <div class="flex-1 max-w-md">
+          <label for="searchProducto" class="sr-only">Buscar productos</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input 
+              id="searchProducto"
+              type="text" 
+              [(ngModel)]="searchProducto" 
+              name="searchProducto"
+              placeholder="Buscar productos..."
+              class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+          </div>
+        </div>
+
+        <!-- Controles de selección -->
+        <div class="flex gap-2">
+          <button 
+            type="button"
+            (click)="seleccionarTodos()"
+            class="px-3 py-2 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+            Seleccionar Todo
+          </button>
+          <button 
+            type="button"
+            (click)="deseleccionarTodos()"
+            class="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+            Deseleccionar Todo
+          </button>
+        </div>
+      </div>
+
+      <!-- Contador de seleccionados -->
+      <div class="mt-4">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+          {{ productosSeleccionados.length }} productos seleccionados
+        </span>
+      </div>
+    </div>
+
+    <!-- Lista de productos -->
+    <div class="flex-1 overflow-y-auto p-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        
+        <div *ngFor="let producto of productosFilter" 
+             class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+             [class.border-purple-500]="isProductoSeleccionado(producto.id)"
+             [class.bg-purple-50]="isProductoSeleccionado(producto.id)">
+          
+          <!-- Checkbox de selección -->
+          <div class="flex items-start gap-3">
+            <input 
+              type="checkbox"
+              [checked]="isProductoSeleccionado(producto.id)"
+              (change)="toggleProductoSeleccion(producto.id)"
+              class="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+            
+            <div class="flex-1 min-w-0">
+              
+              <!-- Imagen del producto -->
+              <div class="flex items-center gap-3 mb-2">
+                <img 
+                  *ngIf="producto.imagen" 
+                  [src]="producto.imagen" 
+                  [alt]="producto.nombre"
+                  class="h-12 w-12 object-cover rounded-lg border border-gray-200">
+                <div 
+                  *ngIf="!producto.imagen"
+                  class="h-12 w-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                  <svg class="h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                
+                <div class="flex-1 min-w-0">
+                  <h4 class="text-sm font-medium text-gray-900 truncate">{{ producto.nombre }}</h4>
+                  <p class="text-xs text-gray-500 truncate">{{ producto.descripcion }}</p>
+                </div>
+              </div>
+
+              <!-- Información del producto -->
+              <div class="space-y-1">
+                <div class="flex justify-between items-center">
+                  <span class="text-xs text-gray-500">Precio:</span>
+                  <span class="text-sm font-medium text-gray-900">${{ producto.precio }}</span>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                  <span class="text-xs text-gray-500">Stock:</span>
+                  <span class="text-sm text-gray-700">{{ producto.stock }}</span>
+                </div>
+
+                <!-- Oferta actual si existe -->
+                <div *ngIf="producto.oferta" class="mt-2">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                    Oferta: {{ formatearDescuento(producto.oferta.descuento) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mensaje si no hay productos -->
+        <div *ngIf="productosFilter.length === 0" class="col-span-full text-center py-8">
+          <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No se encontraron productos</h3>
+          <p class="mt-1 text-sm text-gray-500">
+            {{ searchProducto ? 'Intenta con otros términos de búsqueda' : 'No hay productos disponibles para asignar' }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer con botones -->
+    <div class="flex justify-end gap-3 p-6 border-t border-gray-200">
+      <button 
+        type="button" 
+        (click)="cerrarModalAsignarProductos()"
+        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors">
+        Cancelar
+      </button>
+      <button 
+        type="button"
+        (click)="asignarProductosAOferta()"
+        [disabled]="productosSeleccionados.length === 0"
+        class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
+        Asignar {{ productosSeleccionados.length }} Producto{{ productosSeleccionados.length !== 1 ? 's' : '' }}
+      </button>
+    </div>
+  </div>
+</div>
