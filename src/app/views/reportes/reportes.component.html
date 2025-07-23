@@ -1,0 +1,776 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard de Reportes</h1>
+      <p class="text-gray-600">Análisis y reportes del sistema de ventas</p>
+    </div>
+
+    <!-- Filtros de Reportes -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Filtros de Consulta</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <!-- Tipo de Reporte -->
+        <div>
+          <label for="tipoReporte" class="block text-sm font-medium text-gray-700 mb-2">
+            Tipo de Reporte
+          </label>
+          <select 
+            id="tipoReporte" 
+            [(ngModel)]="tipoReporte" 
+            (change)="onTipoReporteChange()"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option *ngFor="let tipo of tiposReporte" [value]="tipo.value">
+              {{ tipo.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Fecha Inicio -->
+        <div>
+          <label for="fechaInicio" class="block text-sm font-medium text-gray-700 mb-2">
+            Fecha Inicio
+          </label>
+          <input 
+            type="date" 
+            id="fechaInicio" 
+            [(ngModel)]="fechaInicio"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <!-- Fecha Fin -->
+        <div>
+          <label for="fechaFin" class="block text-sm font-medium text-gray-700 mb-2">
+            Fecha Fin
+          </label>
+          <input 
+            type="date" 
+            id="fechaFin" 
+            [(ngModel)]="fechaFin"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <!-- Límite -->
+        <div>
+          <label for="limite" class="block text-sm font-medium text-gray-700 mb-2">
+            Límite de Resultados
+          </label>
+          <input 
+            type="number" 
+            id="limite" 
+            [(ngModel)]="limite"
+            min="1" 
+            max="100"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+      </div>
+
+      <!-- Filtros adicionales para ventas por período -->
+      <div *ngIf="tipoReporte === 'ventas_periodo'" class="mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="agruparPor" class="block text-sm font-medium text-gray-700 mb-2">
+              Agrupar Por
+            </label>
+            <select 
+              id="agruparPor" 
+              [(ngModel)]="agruparPor"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option *ngFor="let opcion of opcionesAgrupar" [value]="opcion.value">
+                {{ opcion.label }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros especiales para comparativa de períodos -->
+      <div *ngIf="mostrarComparativa" class="mb-6">
+        <h3 class="text-lg font-medium text-gray-800 mb-4">Comparativa de Períodos</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Período 1 -->
+          <div class="p-4 bg-blue-50 rounded-lg">
+            <h4 class="text-md font-medium text-blue-800 mb-3">Período 1</h4>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Inicio</label>
+                <input 
+                  type="date" 
+                  [(ngModel)]="fechaInicio1"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Fin</label>
+                <input 
+                  type="date" 
+                  [(ngModel)]="fechaFin1"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+            </div>
+          </div>
+
+          <!-- Período 2 -->
+          <div class="p-4 bg-green-50 rounded-lg">
+            <h4 class="text-md font-medium text-green-800 mb-3">Período 2</h4>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Inicio</label>
+                <input 
+                  type="date" 
+                  [(ngModel)]="fechaInicio2"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Fin</label>
+                <input 
+                  type="date" 
+                  [(ngModel)]="fechaFin2"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones de Acción -->
+      <div class="flex flex-wrap gap-4">
+        <button 
+          (click)="consultarReporte()"
+          [disabled]="isLoading"
+          class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg *ngIf="isLoading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <svg *ngIf="!isLoading" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+          {{ isLoading ? 'Consultando...' : 'Consultar' }}
+        </button>
+
+        <button 
+          (click)="descargarPDF()"
+          [disabled]="isLoading"
+          class="inline-flex items-center px-4 py-2 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Descargar PDF
+        </button>
+
+        <button 
+          (click)="descargarExcel()"
+          [disabled]="isLoading"
+          class="inline-flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Descargar Excel
+        </button>
+
+        <button 
+          (click)="descargarCSV()"
+          [disabled]="isLoading"
+          class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+          </svg>
+          Descargar CSV
+        </button>
+      </div>
+    </div>
+
+    <!-- Dashboard Principal -->
+    <div *ngIf="dashboardData && reporteActual === 'dashboard'" class="space-y-8">
+      <!-- Métricas Principales -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Pedidos Hoy -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="flex items-center justify-center h-8 w-8 rounded-md bg-blue-500 text-white">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Pedidos Hoy</dt>
+                <dd class="text-lg font-medium text-gray-900">{{ formatearNumero(dashboardData.metricas.hoy.total_pedidos) }}</dd>
+                <dd class="text-sm text-gray-600">
+                  vs ayer: 
+                  <span [ngClass]="obtenerClasePorcentaje(dashboardData.comparaciones.pedidos_hoy_vs_ayer.diferencia)">
+                    {{ obtenerIconoPorcentaje(dashboardData.comparaciones.pedidos_hoy_vs_ayer.diferencia) }}
+                    {{ formatearNumero(obtenerValorAbsoluto(dashboardData.comparaciones.pedidos_hoy_vs_ayer.diferencia)) }}
+                  </span>
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ingresos Hoy -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="flex items-center justify-center h-8 w-8 rounded-md bg-green-500 text-white">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Ingresos Hoy</dt>
+                <dd class="text-lg font-medium text-gray-900">{{ formatearMoneda(dashboardData.metricas.hoy.total_ingresos) }}</dd>
+                <dd class="text-sm text-gray-600">
+                  vs ayer: 
+                  <span [ngClass]="obtenerClasePorcentaje(dashboardData.comparaciones.ingresos_hoy_vs_ayer.diferencia)">
+                    {{ obtenerIconoPorcentaje(dashboardData.comparaciones.ingresos_hoy_vs_ayer.diferencia) }}
+                    {{ formatearMoneda(obtenerValorAbsoluto(dashboardData.comparaciones.ingresos_hoy_vs_ayer.diferencia)) }}
+                  </span>
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+
+        <!-- Última Semana -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="flex items-center justify-center h-8 w-8 rounded-md bg-yellow-500 text-white">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Última Semana</dt>
+                <dd class="text-lg font-medium text-gray-900">{{ formatearNumero(dashboardData.metricas.ultima_semana.total_pedidos) }} pedidos</dd>
+                <dd class="text-sm text-gray-600">{{ formatearMoneda(dashboardData.metricas.ultima_semana.total_ingresos) }}</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+
+        <!-- Último Mes -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="flex items-center justify-center h-8 w-8 rounded-md bg-purple-500 text-white">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Último Mes</dt>
+                <dd class="text-lg font-medium text-gray-900">{{ formatearNumero(dashboardData.metricas.ultimo_mes.total_pedidos) }} pedidos</dd>
+                <dd class="text-sm text-gray-600">{{ formatearMoneda(dashboardData.metricas.ultimo_mes.total_ingresos) }}</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Productos y Clientes del Mes -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Top Productos del Mes -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Top Productos del Mes</h3>
+          </div>
+          <div class="p-6">
+            <div *ngIf="dashboardData.top_productos_mes.length > 0; else noProductos" class="space-y-4">
+              <div *ngFor="let producto of dashboardData.top_productos_mes.slice(0, 5)" 
+                   class="flex items-center justify-between">
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">{{ producto.producto__nombre }}</p>
+                  <p class="text-sm text-gray-500">{{ formatearNumero(producto.cantidad_vendida) }} vendidos</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm font-medium text-green-600">{{ formatearMoneda(producto.ingreso_total) }}</p>
+                </div>
+              </div>
+            </div>
+            <ng-template #noProductos>
+              <p class="text-gray-500 text-center py-4">No hay productos vendidos este mes</p>
+            </ng-template>
+          </div>
+        </div>
+
+        <!-- Top Clientes del Mes -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Top Clientes del Mes</h3>
+          </div>
+          <div class="p-6">
+            <div *ngIf="dashboardData.top_clientes_mes.length > 0; else noClientes" class="space-y-4">
+              <div *ngFor="let cliente of dashboardData.top_clientes_mes.slice(0, 5)" 
+                   class="flex items-center justify-between">
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">{{ cliente.usuario__nombre_completo }}</p>
+                  <p class="text-sm text-gray-500">{{ formatearNumero(cliente.total_pedidos) }} pedidos</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm font-medium text-green-600">{{ formatearMoneda(cliente.total_gastado) }}</p>
+                </div>
+              </div>
+            </div>
+            <ng-template #noClientes>
+              <p class="text-gray-500 text-center py-4">No hay clientes registrados este mes</p>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarjetas de Dashboard (Resumen General) -->
+    <div *ngIf="resumenGeneral && reporteActual === 'resumen_general'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="flex items-center justify-center h-8 w-8 rounded-md bg-blue-500 text-white">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Total Pedidos</dt>
+              <dd class="text-lg font-medium text-gray-900">{{ formatearNumero(resumenGeneral.total_pedidos) }}</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="flex items-center justify-center h-8 w-8 rounded-md bg-green-500 text-white">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Ingresos Totales</dt>
+              <dd class="text-lg font-medium text-gray-900">{{ formatearMoneda(resumenGeneral.total_ingresos) }}</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="flex items-center justify-center h-8 w-8 rounded-md bg-yellow-500 text-white">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Promedio por Pedido</dt>
+              <dd class="text-lg font-medium text-gray-900">{{ formatearMoneda(resumenGeneral.ingreso_promedio) }}</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="flex items-center justify-center h-8 w-8 rounded-md bg-purple-500 text-white">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Clientes Únicos</dt>
+              <dd class="text-lg font-medium text-gray-900">{{ formatearNumero(resumenGeneral.clientes_unicos) }}</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Productos Más Vendidos -->
+    <div *ngIf="productosMasVendidos.length > 0 && reporteActual === 'productos_vendidos'" class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+      <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <h3 class="text-lg font-medium text-gray-900">Productos Más Vendidos</h3>
+        <span *ngIf="productosMasVendidosResponse?.total_registros" class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+          Total: {{ productosMasVendidosResponse?.total_registros }} productos
+        </span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-800">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Producto</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Precio</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Stock</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Cantidad Vendida</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Veces Comprado</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Ingreso Total</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let producto of productosMasVendidos; let i = index" 
+                [class.bg-gray-50]="i % 2 === 1">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">{{ producto.producto__nombre }}</div>
+                <div class="text-sm text-gray-500">ID: {{ producto.producto__id }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ formatearMoneda(producto.producto__precio) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ formatearNumero(producto.producto__stock) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ formatearNumero(producto.cantidad_vendida) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ formatearNumero(producto.veces_comprado) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                {{ formatearMoneda(producto.ingreso_total) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Ventas por Período -->
+    <div *ngIf="ventasPorPeriodo.length > 0 && reporteActual === 'ventas_periodo'" class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+      <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <h3 class="text-lg font-medium text-gray-900">Ventas por Período</h3>
+        <span *ngIf="ventasPorPeriodoResponse?.total_periodos" class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+          Total: {{ ventasPorPeriodoResponse?.total_periodos }} períodos
+        </span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-800">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Período</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Total Pedidos</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Total Ingresos</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Productos Vendidos</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Promedio por Pedido</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Descuento Promedio</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let venta of ventasPorPeriodo; let i = index" 
+                [class.bg-gray-50]="i % 2 === 1">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                {{ venta.periodo }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ formatearNumero(venta.total_pedidos) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                {{ formatearMoneda(venta.total_ingresos) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ formatearNumero(venta.total_productos_vendidos) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ formatearMoneda(venta.ingreso_promedio_pedido) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ formatearPorcentaje(venta.descuento_promedio) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Top Clientes -->
+    <div *ngIf="clientesTop.length > 0 && reporteActual === 'top_clientes'" class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+      <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <h3 class="text-lg font-medium text-gray-900">Top Clientes</h3>
+        <span *ngIf="clientesTopResponse?.total_registros" class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+          Total: {{ clientesTopResponse?.total_registros }} clientes
+        </span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-800">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Cliente</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Email</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Total Pedidos</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Total Gastado</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Gasto Promedio</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Productos Comprados</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let cliente of clientesTop; let i = index" 
+                [class.bg-gray-50]="i % 2 === 1">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">{{ cliente.usuario__nombre_completo }}</div>
+                <div class="text-sm text-gray-500">ID: {{ cliente.usuario__id }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ cliente.usuario__email }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ formatearNumero(cliente.total_pedidos) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                {{ formatearMoneda(cliente.total_gastado) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ formatearMoneda(cliente.gasto_promedio) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ formatearNumero(cliente.total_productos_comprados) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Efectividad de Ofertas -->
+    <div *ngIf="efectividadOfertas && reporteActual === 'efectividad_ofertas'" class="space-y-8">
+      
+      <!-- Panel de debugging temporal -->
+      <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <h4 class="text-sm font-medium text-yellow-800 mb-2">🔍 Información de Debug</h4>
+        <div class="text-xs text-yellow-700 space-y-1">
+          <p><strong>Objeto efectividad existe:</strong> {{ !!efectividadOfertas }}</p>
+          <p><strong>Productos con ofertas:</strong> {{ (efectividadOfertas && efectividadOfertas.productos_con_ofertas) ? efectividadOfertas.productos_con_ofertas.length : 'No definido' }}</p>
+          <p><strong>Productos sin ofertas:</strong> {{ (efectividadOfertas && efectividadOfertas.productos_sin_ofertas) ? efectividadOfertas.productos_sin_ofertas.length : 'No definido' }}</p>
+          <p><strong>Es array con ofertas:</strong> {{ (efectividadOfertas && efectividadOfertas.productos_con_ofertas && isArray(efectividadOfertas.productos_con_ofertas)) ? 'Sí' : 'No' }}</p>
+          <p><strong>Es array sin ofertas:</strong> {{ (efectividadOfertas && efectividadOfertas.productos_sin_ofertas && isArray(efectividadOfertas.productos_sin_ofertas)) ? 'Sí' : 'No' }}</p>
+        </div>
+      </div>
+      <!-- Productos con ofertas -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200 bg-green-50 flex justify-between items-center">
+          <h3 class="text-lg font-medium text-green-800">Productos con Ofertas</h3>
+          <span class="text-sm text-green-600 bg-green-100 px-3 py-1 rounded-full">
+            {{ (efectividadOfertas && efectividadOfertas.productos_con_ofertas) ? efectividadOfertas.productos_con_ofertas.length : 0 }} productos
+          </span>
+        </div>
+        <div class="overflow-x-auto" *ngIf="efectividadOfertas.productos_con_ofertas && efectividadOfertas.productos_con_ofertas.length > 0; else noProductosConOfertas">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-800">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Producto</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Oferta</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Cantidad Vendida</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Ingreso con Descuento</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Ahorro Clientes</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Ventas</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let producto of efectividadOfertas.productos_con_ofertas; let i = index" 
+                  [class.bg-gray-50]="i % 2 === 1">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">{{ producto.producto__nombre }}</div>
+                  <div class="text-sm text-gray-500">ID: {{ producto.producto__id }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ producto.nombre_oferta || 'Sin nombre' }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ formatearNumero(producto.cantidad_vendida) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                  {{ formatearMoneda(producto.ingreso_con_descuento || 0) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                  {{ formatearMoneda(producto.ahorro_total_clientes || 0) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ formatearNumero(producto.ventas_count) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ng-template #noProductosConOfertas>
+          <div class="p-8 text-center text-gray-500">
+            <p class="text-lg">📊 No se encontraron productos con ofertas en el período seleccionado</p>
+            <p class="text-sm mt-2">Intenta ajustar el rango de fechas o verifica que haya ofertas activas</p>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Productos sin ofertas -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200 bg-blue-50 flex justify-between items-center">
+          <h3 class="text-lg font-medium text-blue-800">Productos sin Ofertas</h3>
+          <span class="text-sm text-blue-600 bg-blue-100 px-3 py-1 rounded-full">
+            {{ (efectividadOfertas && efectividadOfertas.productos_sin_ofertas) ? efectividadOfertas.productos_sin_ofertas.length : 0 }} productos
+          </span>
+        </div>
+        <div class="overflow-x-auto" *ngIf="efectividadOfertas.productos_sin_ofertas && efectividadOfertas.productos_sin_ofertas.length > 0; else noProductosSinOfertas">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-800">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Producto</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Cantidad Vendida</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Ingreso Total</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Ventas</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let producto of efectividadOfertas.productos_sin_ofertas; let i = index" 
+                  [class.bg-gray-50]="i % 2 === 1">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">{{ producto.producto__nombre }}</div>
+                  <div class="text-sm text-gray-500">ID: {{ producto.producto__id }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ formatearNumero(producto.cantidad_vendida) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                  {{ formatearMoneda(producto.ingreso_total || 0) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ formatearNumero(producto.ventas_count) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ng-template #noProductosSinOfertas>
+          <div class="p-8 text-center text-gray-500">
+            <p class="text-lg">📦 No se encontraron productos sin ofertas en el período seleccionado</p>
+            <p class="text-sm mt-2">Esto puede significar que todos los productos vendidos tenían ofertas activas</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- Comparativa de Períodos 
+    <div *ngIf="comparativaPeriodos && reporteActual === 'comparativa_periodos'" class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">-->
+      
+      <!-- Panel de debugging temporal para comparativa
+      <div class="m-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <h4 class="text-sm font-medium text-yellow-800 mb-2">🔍 Debug Comparativa</h4>
+        <div class="text-xs text-yellow-700 space-y-1">
+          <p><strong>Objeto comparativa existe:</strong> {{ !!comparativaPeriodos }}</p>
+          <p><strong>Tiene datos comparativa:</strong> {{ comparativaPeriodos && !!comparativaPeriodos.comparativa }}</p>
+          <p><strong>Keys disponibles:</strong> {{ obtenerComparativaKeys().length }}</p>
+          <p><strong>Keys:</strong> {{ obtenerComparativaKeys().join(', ') }}</p>
+        </div>
+      </div>
+      
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">Comparativa de Períodos</h3>
+      </div>
+      <div class="p-6"> -->
+        <!-- Información de períodos 
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div class="p-4 bg-blue-50 rounded-lg">
+            <h4 class="text-md font-medium text-blue-800 mb-2">Período 1</h4>
+            <p class="text-sm text-gray-600">
+              {{ formatearFecha(comparativaPeriodos.periodo_1.fecha_inicio) }} - 
+              {{ formatearFecha(comparativaPeriodos.periodo_1.fecha_fin) }}
+            </p>
+          </div>
+          <div class="p-4 bg-green-50 rounded-lg">
+            <h4 class="text-md font-medium text-green-800 mb-2">Período 2</h4>
+            <p class="text-sm text-gray-600">
+              {{ formatearFecha(comparativaPeriodos.periodo_2.fecha_inicio) }} - 
+              {{ formatearFecha(comparativaPeriodos.periodo_2.fecha_fin) }}
+            </p>
+          </div>
+        </div> -->
+
+        <!-- Tabla comparativa
+        <div *ngIf="obtenerComparativaKeys().length > 0; else noDataComparativa" class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-800">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Métrica</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Período 1</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Período 2</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Diferencia</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">% Cambio</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let key of obtenerComparativaKeys(); let i = index" 
+                  [class.bg-gray-50]="i % 2 === 1">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  {{ obtenerLabelMetrica(key) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ formatearNumero(comparativaPeriodos!.comparativa[key].periodo_1) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ formatearNumero(comparativaPeriodos!.comparativa[key].periodo_2) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"
+                    [ngClass]="obtenerClasePorcentaje(comparativaPeriodos!.comparativa[key].diferencia)">
+                  {{ obtenerIconoPorcentaje(comparativaPeriodos!.comparativa[key].diferencia) }}
+                  {{ formatearNumero(obtenerValorAbsoluto(comparativaPeriodos!.comparativa[key].diferencia)) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"
+                    [ngClass]="obtenerClasePorcentaje(comparativaPeriodos!.comparativa[key].porcentaje_cambio)">
+                  {{ obtenerIconoPorcentaje(comparativaPeriodos!.comparativa[key].porcentaje_cambio) }}
+                  {{ formatearPorcentaje(obtenerValorAbsoluto(comparativaPeriodos!.comparativa[key].porcentaje_cambio)) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <ng-template #noDataComparativa>
+          <div class="p-8 text-center text-gray-500">
+            <p class="text-lg">📊 No se encontraron datos para la comparativa</p>
+            <p class="text-sm mt-2">Verifica que los períodos seleccionados tengan datos de ventas</p>
+            <p class="text-xs mt-1 text-gray-400">
+              Período 1: {{ fechaInicio1 | date:'shortDate' }} - {{ fechaFin1 | date:'shortDate' }}
+            </p>
+            <p class="text-xs text-gray-400">
+              Período 2: {{ fechaInicio2 | date:'shortDate' }} - {{ fechaFin2 | date:'shortDate' }}
+            </p>
+          </div>
+        </ng-template>
+      </div>
+    </div> -->
+
+    <!-- Mensaje cuando no hay datos -->
+    <div *ngIf="!isLoading && !hayDatos()" class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+      </svg>
+      <h3 class="mt-4 text-lg font-medium text-gray-900">No hay datos disponibles</h3>
+      <p class="mt-2 text-gray-600">Utiliza los filtros de arriba y haz clic en "Consultar" para cargar los datos del reporte.</p>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+      <div class="flex justify-center items-center">
+        <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span class="ml-3 text-lg font-medium text-gray-900">Cargando datos...</span>
+      </div>
+    </div>
+  </div>
+</div>

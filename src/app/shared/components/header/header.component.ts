@@ -19,7 +19,7 @@ export class HeaderComponent implements OnInit {
   ngOnInit(): void {
     this.obtenerUsuario();
   }
-
+/*
   obtenerUsuario() {
     const user = sessionStorage.getItem('user');
     if (user) {
@@ -36,6 +36,25 @@ export class HeaderComponent implements OnInit {
       }
     }
   }
+*/
+obtenerUsuario() {
+  if (typeof window !== 'undefined' && window.sessionStorage) {
+    const user = sessionStorage.getItem('user');
+    if (user) {
+      try {
+        const userObj = JSON.parse(user);
+        this.username =
+          userObj.username || userObj.email || userObj.nombre_completo || userObj.name || userObj.user;
+
+        if (this.username && this.username.includes('@')) {
+          this.username = this.username.split('@')[0];
+        }
+      } catch (error) {
+        console.error('Error al parsear el usuario: ', error);
+      }
+    }
+  }
+}
 
   irPerfil(): void {
     this.router.navigate(['/perfil']);

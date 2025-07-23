@@ -44,6 +44,10 @@ export const routes: Routes = [
                 loadComponent: () => import('./views/categorias/categorias.component')
             },
             {
+                path: 'reportes',
+                loadComponent: () => import('./views/reportes/reportes.component').then(m => m.ReportesComponent)
+            },
+            {
                 path: '',
                 redirectTo: 'login',
                 pathMatch: 'full'
