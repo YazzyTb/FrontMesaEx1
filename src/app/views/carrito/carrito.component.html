@@ -1,4 +1,6 @@
-<h1 class="mb-10 text-center text-3xl font-bold text-blue-900">Carrito de Compras</h1>
+<div class="flex justify-between items-center mb-10">
+  <h1 class="text-center text-3xl font-bold text-blue-900">Carrito de Compras</h1>
+</div>
 
 <!-- Mensaje cuando el carrito está vacío -->
 <div *ngIf="carrito.length === 0" class="text-center py-16">
@@ -23,18 +25,20 @@
       <div class="sm:ml-6 sm:flex sm:w-full sm:justify-between mt-4 sm:mt-0">
         <div class="flex-1">
           <h2 class="text-lg font-semibold text-blue-900">{{ detalle.producto.nombre }}</h2>
-          <p class="mt-1 text-sm text-gray-600">{{ detalle.producto.descripcion }}</p>
           
           <!-- Mostrar información de oferta si existe -->
-          <div *ngIf="detalle.producto.tieneOferta" class="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+          <div *ngIf="detalle.tiene_oferta" class="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
             <div class="flex items-center space-x-2">
               <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
               </svg>
-              <span class="text-sm font-medium text-green-800">{{ detalle.producto.ofertaNombre }}</span>
+              <span class="text-sm font-medium text-green-800">{{ detalle.nombre_oferta || 'Oferta activa' }}</span>
             </div>
             <p class="text-xs text-green-700 mt-1">
-              Descuento: {{ formatearDescuento(detalle.producto.ofertaDescuento) }} por unidad
+              Estado: {{ obtenerEstadoOferta(detalle) }}
+            </p>
+            <p class="text-xs text-green-700">
+              Descuento: {{ formatearDescuento(detalle.descuento_oferta) }} ({{ calcularPorcentajeDescuento(detalle).toFixed(1) }}%)
             </p>
           </div>
         </div>
@@ -55,21 +59,21 @@
 
           <div class="flex items-center space-x-3">
             <div class="text-right">
-              <!-- Precio con oferta (si aplica) -->
+              <!-- Precio actual (con oferta aplicada) -->
               <p class="text-base font-medium text-blue-900">
-                Bs. {{ calcularPrecioConOferta(detalle.producto) * detalle.cantidad }}
+                Bs. {{ formatearPrecio(detalle.subtotal) }}
               </p>
               
               <!-- Precio original tachado si hay oferta -->
-              <p *ngIf="detalle.producto.tieneOferta" 
+              <p *ngIf="detalle.tiene_oferta" 
                  class="text-sm text-gray-500 line-through">
-                Bs. {{ detalle.producto.precio * detalle.cantidad }}
+                Bs. {{ formatearPrecio(detalle.subtotal_original) }}
               </p>
               
-              <!-- Mostrar ahorro -->
-              <p *ngIf="detalle.producto.tieneOferta" 
+              <!-- Mostrar ahorro total por este producto -->
+              <p *ngIf="detalle.tiene_oferta && calcularAhorroProducto(detalle) > 0" 
                  class="text-xs text-green-600 font-medium">
-                Ahorras: Bs. {{ calcularAhorroProducto(detalle.producto, detalle.cantidad) }}
+                Ahorras: {{ formatearDescuento(calcularAhorroProducto(detalle)) }}
               </p>
             </div>
             
@@ -115,10 +119,19 @@
       </div>
       
       <p class="text-sm text-gray-500">Incluye envío a domicilio</p>
-      <button (click)="redirigirAPago()"
-        class="w-full rounded-md bg-blue-900 hover:bg-blue-800 text-white py-2 font-semibold transition">
-        Ir a pagar
-      </button>
+      
+      <!-- Botones de acción -->
+      <div class="space-y-3">
+        <button (click)="redirigirAPago()"
+          class="w-full rounded-md bg-blue-900 hover:bg-blue-800 text-white py-2 font-semibold transition">
+          Ir a pagar
+        </button>
+        
+        <button 
+          class="w-full rounded-md bg-red-600 hover:bg-red-700 text-white py-2 font-semibold transition border border-red-600 hover:border-red-700">
+          Vaciar carrito
+        </button>
+      </div>
     </div>
   </div>
 </div>
