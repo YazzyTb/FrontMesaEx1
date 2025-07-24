@@ -34,21 +34,35 @@
         <div class="text-xs mt-0.5">{{ formatearDescuento(producto.ofertaDescuento) }} OFF</div>
       </div>
 
-      <!-- Badge de stock bajo (opcional) -->
-      <div *ngIf="producto.stock < 5 && producto.stock > 0" 
-           class="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded-md text-xs font-bold">
-        ¡Últimas {{ producto.stock }}!
+      <!-- Badge de stock bajo -->
+      <div *ngIf="producto.stock <= 4 && producto.stock > 0" 
+           class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-md text-xs font-bold animate-pulse">
+        ¡Últimos {{ producto.stock }}!
+      </div>
+      
+      <!-- Badge de sin stock -->
+      <div *ngIf="producto.stock === 0" 
+           class="absolute top-2 right-2 bg-gray-500 text-white px-2 py-1 rounded-md text-xs font-bold">
+        Sin stock
       </div>
     </div>
     <div class="p-5 space-y-2">
       <div class="flex justify-between items-center">
         <h3 class="text-lg font-semibold text-blue-900 truncate">{{ producto.nombre }}</h3>
-        <button (click)="agregarProducto(producto)" title="Agregar al carrito"
-          class="bg-blue-900 hover:bg-blue-800 text-white p-2 rounded-full transition-all duration-200 hover:scale-110 shadow-md hover:shadow-lg">
+        <button (click)="agregarProducto(producto)" 
+                [disabled]="producto.stock === 0"
+                [title]="producto.stock === 0 ? 'Sin stock disponible' : 'Agregar al carrito'"
+                class="text-white p-2 rounded-full transition-all duration-200 shadow-md hover:shadow-lg"
+                [ngClass]="{
+                  'bg-blue-900 hover:bg-blue-800 hover:scale-110': producto.stock > 0,
+                  'bg-gray-400 cursor-not-allowed': producto.stock === 0
+                }">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor"
             viewBox="0 0 24 24">
-            <path
+            <path *ngIf="producto.stock > 0"
               d="M10 16v-4H6v-2h4V6h2v4h4v2h-4v4h-2Zm-5 6q-.825 0-1.412-.587Q3 20.825 3 20q0-.825.588-1.412Q4.175 18 5 18q.825 0 1.412.588Q7 19.175 7 20q0 .825-.588 1.413Q5.825 22 5 22Zm12 0q-.825 0-1.412-.587Q15 20.825 15 20q0-.825.588-1.412Q16.175 18 17 18q.825 0 1.413.588Q19 19.175 19 20q0 .825-.587 1.413Q17.825 22 17 22ZM6.3 14l1.45-2.5H17l2.85-5H7.1L5.7 6H2V4h3.6l3.6 6.5h9.45q.25 0 .375.2.125.2.025.4l-3.2 5.6q-.25.4-.65.65-.4.25-.9.25H6.3Z" />
+            <path *ngIf="producto.stock === 0"
+              d="M6 18L4.22 16.22L16.22 4.22L18 6L6 18ZM2 20V18H20V20H2Z" />
           </svg>
         </button>
       </div>
@@ -81,6 +95,22 @@
         <p>Marca: <span class="font-medium">{{ producto.genero?.nombre || 'Sin género' }}</span></p>
         <p>Fabricante: <span class="font-medium">{{ producto.autor?.nombre || 'Sin autor' }}</span></p>
         <p>Modelo: <span class="font-medium">{{ producto.editorial?.nombre || 'Sin editorial' }}</span></p>
+        
+        <!-- Información de stock con colores -->
+        <p class="flex items-center space-x-1">
+          <span>Stock:</span>
+          <span class="font-medium px-2 py-0.5 rounded text-xs"
+                [ngClass]="{
+                  'bg-red-100 text-red-700': producto.stock === 0,
+                  'bg-orange-100 text-orange-700': producto.stock > 0 && producto.stock <= 4,
+                  'bg-yellow-100 text-yellow-700': producto.stock > 4 && producto.stock <= 10,
+                  'bg-green-100 text-green-700': producto.stock > 10
+                }">
+            <span *ngIf="producto.stock === 0">Sin stock</span>
+            <span *ngIf="producto.stock > 0 && producto.stock <= 4">{{ producto.stock }} (¡Últimos!)</span>
+            <span *ngIf="producto.stock > 4">{{ producto.stock }} disponibles</span>
+          </span>
+        </p>
       </div>
     </div>
   </div>

@@ -259,6 +259,18 @@ export default class CatalogoComponent implements OnInit {
   }
 
   agregarProducto(producto: Producto): void {
+    // Verificar stock antes que nada
+    if (producto.stock === 0) {
+      Swal.fire({
+        position: "center",
+        icon: "warning",
+        title: "Sin stock",
+        text: "Este producto no tiene stock disponible",
+        showConfirmButton: true,
+      });
+      return;
+    }
+
     // Verificar si hay un token de sesión válido
     const token = sessionStorage.getItem('token');
     if (!token) {
@@ -304,13 +316,23 @@ export default class CatalogoComponent implements OnInit {
         // Actualizar el carrito activo después de agregar el producto
         this.obtenerCarritoActivo();
         
+        // Preparar mensaje de éxito con información de stock
+        let titulo = "¡Producto agregado al carrito!";
+        let texto = `${producto.nombre} se agregó correctamente`;
+        
+        // Agregar información especial si queda poco stock
+        if (producto.stock <= 4) {
+          titulo = "¡Producto agregado! ⚠️";
+          texto = `${producto.nombre} se agregó correctamente.\n¡Quedan solo ${producto.stock} disponibles!`;
+        }
+        
         Swal.fire({
           position: "center",
           icon: "success",
-          title: "¡Producto agregado al carrito!",
-          text: `${producto.nombre} se agregó correctamente`,
+          title: titulo,
+          text: texto,
           showConfirmButton: false,
-          timer: 1500
+          timer: 2000
         });
       },
       error: (error) => {
