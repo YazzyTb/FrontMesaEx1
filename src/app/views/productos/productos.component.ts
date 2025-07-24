@@ -581,10 +581,11 @@ export default class ProductosComponent {
   }
 
   /**
-   * Formatea el descuento para mostrar
+   * Formatea el descuento para mostrar en Bolivianos
    */
   formatearDescuento(descuento: string): string {
-    return this.ofertasService.formatearDescuento(descuento);
+    const descuentoNum = parseFloat(descuento);
+    return `Bs ${descuentoNum.toFixed(2)}`;
   }
 
   /**
@@ -599,19 +600,23 @@ export default class ProductosComponent {
 
   /**
    * Calcula el precio con descuento para una oferta específica
+   * El descuento viene como valor decimal del backend
    */
   calcularPrecioConDescuento(precio: string, descuento: string): number {
     const precioNum = parseFloat(precio);
     const descuentoNum = parseFloat(descuento);
-    return precioNum * (1 - descuentoNum / 100);
+    // Si el descuento es un valor fijo en Bolivianos, se resta directamente
+    return Math.max(0, precioNum - descuentoNum);
   }
 
   /**
    * Calcula el ahorro para una oferta específica
+   * El descuento viene como valor fijo en Bolivianos
    */
   calcularAhorroOferta(precio: string, descuento: string): number {
     const precioNum = parseFloat(precio);
     const descuentoNum = parseFloat(descuento);
-    return precioNum * (descuentoNum / 100);
+    // El ahorro es el valor del descuento, pero no puede ser mayor al precio
+    return Math.min(descuentoNum, precioNum);
   }
 }

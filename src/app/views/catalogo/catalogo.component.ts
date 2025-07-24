@@ -8,6 +8,7 @@ import { CategoriasService } from '../../core/services/categorias.service';
 import { EditorialesService } from '../../core/services/editoriales.service';
 import { CarritoService } from '../../core/services/carrito.service';
 import { DetalleCarritoService } from '../../core/services/detalle-carrito.service';
+import { OfertasService } from '../../core/services/ofertas.service';
 import Swal from 'sweetalert2';
 
 interface Producto {
@@ -23,7 +24,15 @@ interface Producto {
   editorial: { nombre: string } | null; // Ahora es un objeto con nombre o null
   genero: { nombre: string } | null; // Ahora es un objeto con nombre o null
   cantidad: number; // cantidad en el carrito
-  
+  // Propiedades para ofertas
+  oferta?: any;
+  tiene_oferta_vigente?: boolean;
+  precio_con_descuento?: string;
+  descuento_aplicado?: string;
+  tieneOferta?: boolean;
+  ofertaId?: number;
+  ofertaNombre?: string;
+  ofertaDescuento?: number;
 }
 
 
@@ -37,6 +46,7 @@ interface Producto {
 export default class CatalogoComponent implements OnInit {
   productos: Producto[] = [];  // Lista de productos obtenidos
   productosFiltrados: Producto[] = []; // Lista de productos filtrados
+  ofertas: any[] = []; // Lista de ofertas vigentes
   isAdmin: boolean = false; // Asegúrate de controlar si el usuario es administrador
   generos: Array<any> = [];
   autores: Array<any> = [];
@@ -54,7 +64,8 @@ export default class CatalogoComponent implements OnInit {
     private editorialesService: EditorialesService,
     private categoriasService: CategoriasService,
     private carritoService: CarritoService,
-    private detalleCarritoService: DetalleCarritoService) { }
+    private detalleCarritoService: DetalleCarritoService,
+    private ofertasService: OfertasService) { }
 
   ngOnInit() {
     this.getProductos();
@@ -63,6 +74,7 @@ export default class CatalogoComponent implements OnInit {
     this.getEditoriales();
     this.getSubcategorias();
     this.obtenerCarritoActivo();
+    this.cargarOfertas();
   }
 
   getProductos(): void {
@@ -70,6 +82,7 @@ export default class CatalogoComponent implements OnInit {
       (productos) => {
         this.productos = productos.filter(producto => producto.is_active); // Filtrar solo productos activos
         console.log('Productos después del filtrado:', this.productos); // Verifica los productos que llegan al frontend
+        this.aplicarOfertasAProductos(); // Aplicar ofertas después de cargar productos
       },
       (error) => {
         console.error('Error al obtener los productos:', error);
@@ -166,24 +179,116 @@ export default class CatalogoComponent implements OnInit {
     }
   }
 
+  cargarOfertas() {
+    this.ofertasService.getOfertasVigentes().subscribe({
+      next: (response: any) => {
+        this.ofertas = response.ofertas || [];
+        this.aplicarOfertasAProductos();
+      },
+      error: (error: any) => {
+        console.error('Error al cargar ofertas:', error);
+      }
+    });
+  }
+
+  aplicarOfertasAProductos() {
+    this.productos.forEach(producto => {
+      // Primero verificar si el producto tiene ofertas desde las ofertas vigentes cargadas
+      const ofertaAplicable = this.ofertas.find(oferta => 
+        oferta.productos && oferta.productos.some((p: any) => p.id === producto.id)
+      );
+      
+      if (ofertaAplicable) {
+        producto.tieneOferta = true;
+        producto.ofertaId = ofertaAplicable.id;
+        producto.ofertaNombre = ofertaAplicable.nombre;
+        producto.ofertaDescuento = ofertaAplicable.descuento;
+      } else {
+        // También verificar si el producto ya viene con información de oferta del backend
+        if (producto.oferta && producto.oferta.is_active) {
+          producto.tieneOferta = true;
+          producto.ofertaId = producto.oferta.id;
+          producto.ofertaNombre = producto.oferta.nombre;
+          producto.ofertaDescuento = producto.oferta.descuento;
+        } else {
+          producto.tieneOferta = false;
+          producto.ofertaId = undefined;
+          producto.ofertaNombre = undefined;
+          producto.ofertaDescuento = undefined;
+        }
+      }
+    });
+  }
+
+  // Calcular precio con oferta aplicada
+  calcularPrecioConOferta(producto: Producto): number {
+    const precio = parseFloat(producto.precio);
+    if (producto.tieneOferta && producto.ofertaDescuento) {
+      const descuento = parseFloat(producto.ofertaDescuento.toString());
+      return Math.max(0, precio - descuento);
+    }
+    return precio;
+  }
+
+  // Formatear descuento como moneda
+  formatearDescuento(descuento: string | number | undefined): string {
+    if (!descuento) return '';
+    const valor = typeof descuento === 'string' ? parseFloat(descuento) : descuento;
+    return `Bs ${valor.toFixed(2)}`;
+  }
+
   agregarProducto(producto: Producto): void {
+    // Verificar si hay un carrito activo
+    const carritoActivo = localStorage.getItem('carritoActivo');
+    if (!carritoActivo) {
+      Swal.fire({
+        position: "center",
+        icon: "warning",
+        title: "No hay carrito activo",
+        text: "Por favor, inicia sesión para agregar productos al carrito",
+        showConfirmButton: true,
+      });
+      return;
+    }
+
     const detalle = {
       producto_id: producto.id,
       cantidad: producto.cantidad || 1
     };
 
+    console.log('Intentando agregar producto:', detalle);
+
     this.detalleCarritoService.agregarProducto(detalle).subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('Respuesta del servidor:', response);
         Swal.fire({
           position: "center",
           icon: "success",
-          title: "Producto agregado al carrito!",
+          title: "¡Producto agregado al carrito!",
+          text: `${producto.nombre} se agregó correctamente`,
           showConfirmButton: false,
-          timer: 1000
+          timer: 1500
         });
       },
       error: (error) => {
         console.error('Error al agregar producto:', error);
+        let mensajeError = 'Error al agregar el producto al carrito';
+        
+        if (error.status === 401) {
+          mensajeError = 'Debes iniciar sesión para agregar productos al carrito';
+        } else if (error.status === 400) {
+          mensajeError = 'Datos inválidos. Verifica la información del producto';
+        } else if (error.error && error.error.message) {
+          mensajeError = error.error.message;
+        }
+
+        Swal.fire({
+          position: "center",
+          icon: "error",
+          title: "Error",
+          text: mensajeError,
+          showConfirmButton: true,
+        });
       }
     });
   }

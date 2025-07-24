@@ -284,7 +284,7 @@
              class="h-16 w-16 object-cover rounded">
         <div>
           <p class="font-medium">{{ productoSeleccionadoParaOferta.nombre }}</p>
-          <p class="text-sm text-gray-600">Precio: ${{ productoSeleccionadoParaOferta.precio }}</p>
+          <p class="text-sm text-gray-600">Precio: Bs {{ productoSeleccionadoParaOferta.precio }}</p>
           
           <!-- Mostrar oferta actual si existe -->
           <div *ngIf="productoSeleccionadoParaOferta.oferta" class="mt-2">
@@ -297,8 +297,8 @@
           <!-- Mostrar precio con descuento si tiene oferta -->
           <div *ngIf="productoSeleccionadoParaOferta.precio_con_descuento && productoSeleccionadoParaOferta.precio_con_descuento !== productoSeleccionadoParaOferta.precio" class="mt-1">
             <p class="text-sm text-green-600">
-              Precio con descuento: ${{ productoSeleccionadoParaOferta.precio_con_descuento }}
-              <span class="text-xs">(Ahorro: ${{ calcularAhorro(productoSeleccionadoParaOferta).toFixed(2) }})</span>
+              Precio con descuento: Bs {{ productoSeleccionadoParaOferta.precio_con_descuento }}
+              <span class="text-xs">(Ahorro: Bs {{ calcularAhorro(productoSeleccionadoParaOferta).toFixed(2) }})</span>
             </p>
           </div>
         </div>
@@ -346,13 +346,13 @@
           <!-- Cálculo del precio con descuento -->
           <div *ngIf="productoSeleccionadoParaOferta" class="mt-3 p-2 bg-white rounded border">
             <p class="text-sm">
-              <strong>Precio original:</strong> ${{ productoSeleccionadoParaOferta.precio }}
+              <strong>Precio original:</strong> Bs {{ productoSeleccionadoParaOferta.precio }}
             </p>
             <p class="text-sm text-green-600">
-              <strong>Precio con descuento:</strong> ${{ calcularPrecioConDescuento(productoSeleccionadoParaOferta.precio, oferta.descuento).toFixed(2) }}
+              <strong>Precio con descuento:</strong> Bs {{ calcularPrecioConDescuento(productoSeleccionadoParaOferta.precio, oferta.descuento).toFixed(2) }}
             </p>
             <p class="text-sm text-blue-600">
-              <strong>Ahorro:</strong> ${{ calcularAhorroOferta(productoSeleccionadoParaOferta.precio, oferta.descuento).toFixed(2) }}
+              <strong>Ahorro:</strong> Bs {{ calcularAhorroOferta(productoSeleccionadoParaOferta.precio, oferta.descuento).toFixed(2) }}
             </p>
           </div>
         </div>

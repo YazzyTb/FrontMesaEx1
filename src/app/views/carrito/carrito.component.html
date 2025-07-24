@@ -1,6 +1,19 @@
 <h1 class="mb-10 text-center text-3xl font-bold text-blue-900">Carrito de Compras</h1>
 
-<div class="mx-auto max-w-6xl px-6 md:flex md:space-x-8 xl:px-0">
+<!-- Mensaje cuando el carrito está vacío -->
+<div *ngIf="carrito.length === 0" class="text-center py-16">
+  <svg class="mx-auto h-24 w-24 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m4.5-5a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0z" />
+  </svg>
+  <h2 class="mt-4 text-xl font-semibold text-gray-900">Tu carrito está vacío</h2>
+  <p class="mt-2 text-gray-600">¡Explora nuestro catálogo y encuentra productos increíbles!</p>
+  <button (click)="router.navigate(['/catalogo'])" 
+          class="mt-6 rounded-md bg-blue-900 hover:bg-blue-800 text-white px-6 py-2 font-semibold transition">
+    Ver Catálogo
+  </button>
+</div>
+
+<div *ngIf="carrito.length > 0" class="mx-auto max-w-6xl px-6 md:flex md:space-x-8 xl:px-0">
   <!-- Lista de productos -->
   <div class="rounded-lg md:w-2/3 space-y-6">
     <div *ngFor="let detalle of carrito"
@@ -8,9 +21,22 @@
       <img [src]="detalle.producto.imagen" alt="Imagen producto"
         class="w-full sm:w-32 rounded-md object-cover" />
       <div class="sm:ml-6 sm:flex sm:w-full sm:justify-between mt-4 sm:mt-0">
-        <div>
+        <div class="flex-1">
           <h2 class="text-lg font-semibold text-blue-900">{{ detalle.producto.nombre }}</h2>
           <p class="mt-1 text-sm text-gray-600">{{ detalle.producto.descripcion }}</p>
+          
+          <!-- Mostrar información de oferta si existe -->
+          <div *ngIf="detalle.producto.tieneOferta" class="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+            <div class="flex items-center space-x-2">
+              <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+              <span class="text-sm font-medium text-green-800">{{ detalle.producto.ofertaNombre }}</span>
+            </div>
+            <p class="text-xs text-green-700 mt-1">
+              Descuento: {{ formatearDescuento(detalle.producto.ofertaDescuento) }} por unidad
+            </p>
+          </div>
         </div>
 
         <div class="mt-4 sm:mt-0 flex flex-col items-end justify-between space-y-4">
@@ -28,7 +54,25 @@
           </div>
 
           <div class="flex items-center space-x-3">
-            <p class="text-base font-medium text-blue-900">Bs. {{ detalle.producto.precio * detalle.cantidad }}</p>
+            <div class="text-right">
+              <!-- Precio con oferta (si aplica) -->
+              <p class="text-base font-medium text-blue-900">
+                Bs. {{ calcularPrecioConOferta(detalle.producto) * detalle.cantidad }}
+              </p>
+              
+              <!-- Precio original tachado si hay oferta -->
+              <p *ngIf="detalle.producto.tieneOferta" 
+                 class="text-sm text-gray-500 line-through">
+                Bs. {{ detalle.producto.precio * detalle.cantidad }}
+              </p>
+              
+              <!-- Mostrar ahorro -->
+              <p *ngIf="detalle.producto.tieneOferta" 
+                 class="text-xs text-green-600 font-medium">
+                Ahorras: Bs. {{ calcularAhorroProducto(detalle.producto, detalle.cantidad) }}
+              </p>
+            </div>
+            
             <button (click)="eliminarProducto(detalle.id)" title="Eliminar"
               class="text-red-500 hover:text-red-600 transition">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
@@ -45,19 +89,31 @@
   <!-- Resumen del pedido -->
   <div class="mt-8 md:mt-0 md:w-1/3">
     <div class="rounded-lg border border-blue-100 bg-white p-6 shadow-md space-y-4">
+      <h3 class="text-lg font-semibold text-blue-900 mb-4">Resumen del Pedido</h3>
+      
       <div class="flex justify-between text-gray-700">
-        <p>Subtotal</p>
-        <p>Bs. {{ subtotal }}</p>
+        <p>Subtotal (sin ofertas)</p>
+        <p>Bs. {{ subtotalSinOfertas.toFixed(2) }}</p>
       </div>
-      <div class="flex justify-between text-gray-700">
-        <p>Descuento</p>
-        <p>Bs. {{ descuento }}</p>
+      
+      <div *ngIf="totalDescuentosOfertas > 0" class="flex justify-between text-green-600">
+        <p>Descuentos por ofertas</p>
+        <p>- Bs. {{ totalDescuentosOfertas.toFixed(2) }}</p>
       </div>
+      
       <hr />
+      
       <div class="flex justify-between items-center">
         <p class="text-lg font-bold text-blue-900">Total</p>
-        <p class="text-lg font-bold text-blue-900">Bs. {{ total }}</p>
+        <p class="text-lg font-bold text-blue-900">Bs. {{ total.toFixed(2) }}</p>
       </div>
+      
+      <div *ngIf="totalDescuentosOfertas > 0" class="text-center">
+        <p class="text-sm font-medium text-green-600">
+          ¡Ahorras Bs. {{ totalDescuentosOfertas.toFixed(2) }} con ofertas!
+        </p>
+      </div>
+      
       <p class="text-sm text-gray-500">Incluye envío a domicilio</p>
       <button (click)="redirigirAPago()"
         class="w-full rounded-md bg-blue-900 hover:bg-blue-800 text-white py-2 font-semibold transition">
@@ -66,3 +122,4 @@
     </div>
   </div>
 </div>
+<!-- Cierre del contenedor principal cuando hay productos -->

@@ -266,12 +266,12 @@ export class OfertasService {
   }
 
   /**
-   * Formatea el descuento para mostrar
-   * @param descuento El descuento como string
-   * @returns El descuento formateado
+   * Formatea el descuento para mostrar en Bolivianos
+   * @param descuento El descuento como string (valor en Bolivianos)
+   * @returns El descuento formateado en Bs
    */
   formatearDescuento(descuento: string): string {
-    return `${parseFloat(descuento).toFixed(0)}%`;
+    return `Bs ${parseFloat(descuento).toFixed(2)}`;
   }
 
   /**
